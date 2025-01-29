@@ -1,0 +1,13 @@
+import './index.css';
+import { init } from './game';
+// import gallopingSound from './horse-galloping.wav';
+
+document.querySelector('#root')!.innerHTML = `
+<div class="content">
+  <h1>Horse Runner</h1>
+  <canvas id="main-canvas"></canvas>
+</div>
+`;
+//   <audio autoplay loop src=${gallopingSound}></audio>
+
+init();
