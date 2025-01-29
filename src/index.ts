@@ -8,6 +8,5 @@ document.querySelector('#root')!.innerHTML = `
   <canvas id="main-canvas"></canvas>
 </div>
 `;
-//   <audio autoplay loop src=${gallopingSound}></audio>
 
 init();

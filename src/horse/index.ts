@@ -7,8 +7,12 @@ import redBlack from './images/redBodyBlackManeHorse.png';
 import redBrown from './images/redBodyBrownManeHorse.png';
 import whiteWhite from './images/whiteBodyWhiteManeHorse.png';
 
-import { getImage } from '../image'
+import horseGalloping from './sounds/horse-galloping.wav';
+import horseNeighing from './sounds/horse-neigh.mp3';
+
+import ImageTag from '../image'
 import Background from '../background';
+import Sound from '../sound';
 
 
 const FRAME_WIDTH = 64;
@@ -26,24 +30,26 @@ enum HorseRunDirections {
 }
 
 const horseImages = [
-    blackGray,
-    blackWhite,
-    brownBlonde,
-    brownTan,
-    grayWhite,
-    redBlack,
-    redBrown,
-    whiteWhite,
+    ImageTag.getImage(blackGray),
+    ImageTag.getImage(blackWhite),
+    ImageTag.getImage(brownBlonde),
+    ImageTag.getImage(brownTan),
+    ImageTag.getImage(grayWhite),
+    ImageTag.getImage(redBlack),
+    ImageTag.getImage(redBrown),
+    ImageTag.getImage(whiteWhite),
 ];
 
 export default class Horse {
     private canvas: HTMLCanvasElement;
     private context: CanvasRenderingContext2D;
     private background: Background;
-    private image: CanvasImageSource;
+    private image: HTMLImageElement;
     private imageIndex: number = 0;
     private horseDirection: HorseRunDirections = HorseRunDirections.left
     private isHorseRunning: boolean = false;
+    private runningSound: Sound;
+    private neighingSound: Sound;
 
     constructor (
         canvas: HTMLCanvasElement,
@@ -53,14 +59,15 @@ export default class Horse {
         this.canvas = canvas;
         this.context = context;
         this.background = background;
-        this.image = getImage(horseImages[this.imageIndex]);
+        this.image = horseImages[this.imageIndex];
+        this.runningSound = Sound.createAutoPlayLoop(horseGalloping);
+        this.neighingSound = new Sound(horseNeighing);
         this.setupKeyPress();
         this.setupEventListener();   
     }
 
     private setupKeyPress () {
         window.addEventListener('keydown', (event) => {
-            console.log('keydown');
             if (event.key === 'ArrowUp') {
                 this.isHorseRunning = true;
                 this.horseDirection = HorseRunDirections.up;
@@ -78,19 +85,31 @@ export default class Horse {
                 this. horseDirection = HorseRunDirections.right;
                 this.background.setMovingRight();
             } else if (event.key === ' ') {
-                this.imageIndex = (this.imageIndex + 1) % horseImages.length
-                this.setHorse(horseImages[this.imageIndex])
+                const imageIndex = (this.imageIndex + 1) % horseImages.length
+                this.setHorse(imageIndex)
+            } else if (event.key === 'n') {
+                this.neighingSound.play();
             }
         });
 
+        const KEY_UPS_TO_STOP_MOVEMENT = new Set<string>([
+            'ArrowUp',
+            'ArrowDown',
+            'ArrowLeft',
+            'ArrowRight',
+        ]);
+
         window.addEventListener('keyup', (event) => {
-            this.background.setMovingStop();
-            this.isHorseRunning = false;
+            if (KEY_UPS_TO_STOP_MOVEMENT.has(event.key)) {
+                this.background.setMovingStop();
+                this.isHorseRunning = false;
+            }
         });
     }
 
-    private setHorse (imageSrc: string) {
-        this.image = getImage(imageSrc);
+    private setHorse (imageIndex: number) {
+        this.imageIndex = imageIndex;
+        this.image = horseImages[this.imageIndex]
     }
 
     private setupEventListener () {
@@ -102,6 +121,9 @@ export default class Horse {
             if (this.isHorseRunning) {
                 // Pick a new frame
                 currentFrame++;
+                this.runningSound.play();
+            } else {
+                this.runningSound.stop();
             }
 
             // Make the frames loop

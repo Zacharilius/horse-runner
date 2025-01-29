@@ -1,5 +1,5 @@
 import forest from './forest.jpg';
-import { getImage } from '../image'
+import ImageTag from '../image'
 
 enum Direction {
     Left = -1,
@@ -11,7 +11,7 @@ const SPEED = 30;
 export default class Background {
     private canvas: HTMLCanvasElement;
     private context: CanvasRenderingContext2D;
-    private image: CanvasImageSource;
+    private image: HTMLImageElement;
 
     private speed: number = 0;
     private direction: Direction = Direction.Left;
@@ -19,7 +19,7 @@ export default class Background {
     constructor (canvas: HTMLCanvasElement, context: CanvasRenderingContext2D) {
         this.canvas = canvas;
         this.context = context;
-        this.image = getImage(forest);
+        this.image = ImageTag.getImage(forest);
         this.setupEventListener();   
     }
 
