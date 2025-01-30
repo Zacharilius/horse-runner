@@ -9,6 +9,7 @@ import whiteWhite from './images/whiteBodyWhiteManeHorse.png';
 
 import horseGalloping from './sounds/horse-galloping.wav';
 import horseNeighing from './sounds/horse-neigh.mp3';
+import horseWalking from './sounds/horse-walking.mp3';
 
 import ImageTag from '../image'
 import Background from '../background';
@@ -19,6 +20,8 @@ const FRAME_WIDTH = 64;
 const FRAME_HEIGHT = 48;
 
 // Horse sprite
+// TODO: Abstract from this so number of columns can be dynamic based on if running or walking
+// that references the sprite sheet.
 const numColumns = 8;
 const numRows = 1;
 
@@ -46,8 +49,13 @@ export default class Horse {
     private background: Background;
     private image: HTMLImageElement;
     private imageIndex: number = 0;
+
     private horseDirection: HorseRunDirections = HorseRunDirections.left
     private isHorseRunning: boolean = false;
+    private isHorseWalking: boolean = false;
+
+    // Sounds
+    private walkingSound: Sound;
     private runningSound: Sound;
     private neighingSound: Sound;
 
@@ -59,9 +67,13 @@ export default class Horse {
         this.canvas = canvas;
         this.context = context;
         this.background = background;
+        this.imageIndex = Math.floor(Math.random() * horseImages.length);
         this.image = horseImages[this.imageIndex];
+
+        this.walkingSound = Sound.createAutoPlayLoop(horseWalking);
         this.runningSound = Sound.createAutoPlayLoop(horseGalloping);
         this.neighingSound = new Sound(horseNeighing);
+
         this.setupKeyPress();
         this.setupEventListener();   
     }
@@ -69,26 +81,20 @@ export default class Horse {
     private setupKeyPress () {
         window.addEventListener('keydown', (event) => {
             if (event.key === 'ArrowUp') {
-                this.isHorseRunning = true;
-                this.horseDirection = HorseRunDirections.up;
+                this.startHorseMoving(HorseRunDirections.up);
             } else if (event.key === 'ArrowDown') {
-                this.isHorseRunning = true;
-                this.horseDirection = HorseRunDirections.down;
+                this.startHorseMoving(HorseRunDirections.down);
             } else if (event.key === 'ArrowLeft') {
-                this.background.setMoving();
-                this.isHorseRunning = true;
-                this.horseDirection = HorseRunDirections.left;
-                this.background.setMovingLeft();
+                this.startHorseMoving(HorseRunDirections.left);
             } else if (event.key === 'ArrowRight') {
-                this.background.setMoving();
-                this.isHorseRunning = true;
-                this. horseDirection = HorseRunDirections.right;
-                this.background.setMovingRight();
+                this.startHorseMoving(HorseRunDirections.right);
             } else if (event.key === ' ') {
                 const imageIndex = (this.imageIndex + 1) % horseImages.length
                 this.setHorse(imageIndex)
             } else if (event.key === 'n') {
                 this.neighingSound.play();
+            } else if (event.key === 'r') {
+                this.isHorseRunning = true;
             }
         });
 
@@ -103,8 +109,26 @@ export default class Horse {
             if (KEY_UPS_TO_STOP_MOVEMENT.has(event.key)) {
                 this.background.setMovingStop();
                 this.isHorseRunning = false;
+                this.isHorseWalking = false;
+            } else if (event.key === 'r') {
+                this.isHorseRunning = false;
             }
+
         });
+    }
+
+    private startHorseMoving (direction: HorseRunDirections) {
+        this.horseDirection = direction;
+        this.isHorseWalking = true;
+
+        // Handle moving background to make horse look like it's moving
+        if (this.horseDirection === HorseRunDirections.left) {
+            this.background.setMoving();
+            this.background.setMovingLeft();
+        } else if (this.horseDirection === HorseRunDirections.right) {
+            this.background.setMoving();
+            this.background.setMovingRight();
+        }
     }
 
     private setHorse (imageIndex: number) {
@@ -112,18 +136,35 @@ export default class Horse {
         this.image = horseImages[this.imageIndex]
     }
 
+    private handleMovementSounds () {
+        // Handling stoping sounds;
+        if (!this.isHorseRunning) {
+            this.runningSound.stop();
+        }
+        if (!this.isHorseWalking) {
+            this.walkingSound.stop();
+        }
+
+        // Handling starting moving sounds;
+        if (this.isHorseRunning) {
+            // Only play 1 moving sound at a time time;
+            this.runningSound.play();
+            this.walkingSound.stop();
+        } else if (this.isHorseWalking) {
+            this.walkingSound.play();
+        }
+    }
+
     private setupEventListener () {
         let frameWidth = FRAME_WIDTH;
         let frameHeight = FRAME_HEIGHT;
 
         let currentFrame = 0;
-		this.context.canvas.addEventListener("tick", (_event: Event) => {
-            if (this.isHorseRunning) {
+		this.context.canvas.addEventListener('tick', (_event: Event) => {
+            this.handleMovementSounds();
+            if (this.isHorseWalking || this.isHorseRunning) {
                 // Pick a new frame
                 currentFrame++;
-                this.runningSound.play();
-            } else {
-                this.runningSound.stop();
             }
 
             // Make the frames loop
@@ -131,9 +172,9 @@ export default class Horse {
             if (currentFrame > maxFrame){
                 currentFrame = 0;
             }
-            // Update rows and columns
+            // Update rows and columns in sprite sheet
             let column = currentFrame % numColumns;
-            let row = this.horseDirection; //8; //Math.floor(currentFrame / numColumns);
+            let row = this.horseDirection;
 
             this.context.drawImage(
                 this.image, column * frameWidth, row * frameHeight,
@@ -142,7 +183,7 @@ export default class Horse {
                 (this.canvas.width / 2) - (FRAME_WIDTH/ 2),
                 (this.canvas.height / 2) - (FRAME_HEIGHT/ 2),
                 frameWidth,
-                frameHeight
+                frameHeight,
             );
         });
     }

@@ -1,4 +1,3 @@
-// TODO: Convert to Builder class
 export default class Sound {
     private element: HTMLAudioElement;
 
@@ -7,10 +6,11 @@ export default class Sound {
         this.element.src = src;
     }
 
+    // Static Constructor
     static createAutoPlayLoop (src: string): Sound {
-        const sound = new Sound(src);
-        sound.setAutoplay();
-        sound.setLoop();
+        const sound = new Sound(src)
+            .setAutoplay()
+            .setLoop();
         return sound;
     }
 
@@ -22,11 +22,18 @@ export default class Sound {
         this.element.pause();
     }
 
-    public setAutoplay () {
+    public setAutoplay (): Sound {
         this.element.autoplay;
+        return this;
     }
 
-    public setLoop () {
+    public setLoop (): Sound {
         this.element.loop;
+        return this;
+    }
+
+    public setPlaybackRate (playbackRate: number): Sound {
+        this.element.playbackRate = playbackRate;
+        return this;
     }
 }
