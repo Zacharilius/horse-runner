@@ -113,11 +113,11 @@ export default class Horse {
     }
 
     private setupEventListener () {
-        let frameWidth = FRAME_WIDTH; //img.width / numColumns;;
-        let frameHeight = FRAME_HEIGHT; //img.height / numRows;;
+        let frameWidth = FRAME_WIDTH;
+        let frameHeight = FRAME_HEIGHT;
 
         let currentFrame = 0;
-		this.context.canvas.addEventListener("tick", (event: Event) => {
+		this.context.canvas.addEventListener("tick", (_event: Event) => {
             if (this.isHorseRunning) {
                 // Pick a new frame
                 currentFrame++;

@@ -1,6 +1,5 @@
 import './index.css';
 import { init } from './game';
-// import gallopingSound from './horse-galloping.wav';
 
 document.querySelector('#root')!.innerHTML = `
 <div class="content">
