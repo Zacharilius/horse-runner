@@ -24,12 +24,12 @@ export default class Background {
     }
 
     public setMovingLeft () {
-        this.speed = SPEED;
+        // this.speed = SPEED;
         this.direction = Direction.Left;
     }
 
     public setMovingRight () {
-        this.speed = SPEED;
+        // this.speed = SPEED;
         this.direction = Direction.Right;
     }
 
@@ -37,13 +37,17 @@ export default class Background {
         this.speed = 0;
     }
 
-    public setMoving () {
+    public setWalking () {
         this.speed = 10;
+    }
+
+    public setRunning () {
+        this.speed = 60;
     }
 
     private setupEventListener () {
         let x = 0;
-		this.context.canvas.addEventListener("tick", (event: Event) => {
+		this.context.canvas.addEventListener('tick', (event: Event) => {
             x += (this.direction * this.speed);
             x %= this.image.width;
             // Draw image to left

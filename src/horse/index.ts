@@ -19,17 +19,17 @@ import Sound from '../sound';
 const FRAME_WIDTH = 64;
 const FRAME_HEIGHT = 48;
 
-// Horse sprite
-// TODO: Abstract from this so number of columns can be dynamic based on if running or walking
-// that references the sprite sheet.
-const numColumns = 8;
-const numRows = 1;
-
 enum HorseRunDirections {
     left = 8,
     right = 9,
     down = 10,
     up = 11,
+}
+
+interface SpriteLocation {
+    numColumns: number;
+    numRows: number;
+    row: number;
 }
 
 const horseImages = [
@@ -51,8 +51,8 @@ export default class Horse {
     private imageIndex: number = 0;
 
     private horseDirection: HorseRunDirections = HorseRunDirections.left
+    private isHorseMoving: boolean = false;
     private isHorseRunning: boolean = false;
-    private isHorseWalking: boolean = false;
 
     // Sounds
     private walkingSound: Sound;
@@ -80,7 +80,10 @@ export default class Horse {
 
     private setupKeyPress () {
         window.addEventListener('keydown', (event) => {
+            console.log(event.key);
             if (event.key === 'ArrowUp') {
+                // TODO: Move all these function calls to the render and update the functions there....
+                // This should just be state modification.
                 this.startHorseMoving(HorseRunDirections.up);
             } else if (event.key === 'ArrowDown') {
                 this.startHorseMoving(HorseRunDirections.down);
@@ -96,6 +99,10 @@ export default class Horse {
             } else if (event.key === 'r') {
                 this.isHorseRunning = true;
             }
+
+            if (this.isHorseRunning && this.isHorseMoving) {
+                this.startHorseRunning();
+            }
         });
 
         const KEY_UPS_TO_STOP_MOVEMENT = new Set<string>([
@@ -109,26 +116,29 @@ export default class Horse {
             if (KEY_UPS_TO_STOP_MOVEMENT.has(event.key)) {
                 this.background.setMovingStop();
                 this.isHorseRunning = false;
-                this.isHorseWalking = false;
+                this.isHorseMoving = false;
             } else if (event.key === 'r') {
                 this.isHorseRunning = false;
             }
 
         });
     }
-
     private startHorseMoving (direction: HorseRunDirections) {
         this.horseDirection = direction;
-        this.isHorseWalking = true;
+        this.isHorseMoving = true;
 
         // Handle moving background to make horse look like it's moving
         if (this.horseDirection === HorseRunDirections.left) {
-            this.background.setMoving();
+            this.background.setWalking();
             this.background.setMovingLeft();
         } else if (this.horseDirection === HorseRunDirections.right) {
-            this.background.setMoving();
+            this.background.setWalking();
             this.background.setMovingRight();
         }
+    }
+
+    private startHorseRunning () {
+        this.background.setRunning();
     }
 
     private setHorse (imageIndex: number) {
@@ -141,17 +151,40 @@ export default class Horse {
         if (!this.isHorseRunning) {
             this.runningSound.stop();
         }
-        if (!this.isHorseWalking) {
+        if (!this.isHorseMoving) {
             this.walkingSound.stop();
         }
 
         // Handling starting moving sounds;
-        if (this.isHorseRunning) {
+        if (this.isHorseMoving && this.isHorseRunning) {
             // Only play 1 moving sound at a time time;
             this.runningSound.play();
+            // Is this still needed???
             this.walkingSound.stop();
-        } else if (this.isHorseWalking) {
+        } else if (this.isHorseMoving) {
             this.walkingSound.play();
+        }
+    }
+
+    private getHorseSpriteSheetLocation (): SpriteLocation {
+        if (this.isHorseMoving) {
+            if (this.isHorseRunning) {
+                return {
+                    numColumns: 6,
+                    numRows: 1,
+                    row: this.horseDirection + 4,
+                }
+            }
+            return {
+                numColumns: 8,
+                numRows: 1,
+                row: this.horseDirection,
+            }
+        }
+        return {
+            numColumns: 3,
+            numRows: 1,
+            row: this.horseDirection - 8,
         }
     }
 
@@ -162,19 +195,21 @@ export default class Horse {
         let currentFrame = 0;
 		this.context.canvas.addEventListener('tick', (_event: Event) => {
             this.handleMovementSounds();
-            if (this.isHorseWalking || this.isHorseRunning) {
+            if (this.isHorseMoving) {
                 // Pick a new frame
                 currentFrame++;
             }
+
+            let { numColumns, numRows, row } = this.getHorseSpriteSheetLocation();
 
             // Make the frames loop
             let maxFrame = numColumns * numRows - 1;
             if (currentFrame > maxFrame){
                 currentFrame = 0;
             }
+
             // Update rows and columns in sprite sheet
             let column = currentFrame % numColumns;
-            let row = this.horseDirection;
 
             this.context.drawImage(
                 this.image, column * frameWidth, row * frameHeight,
