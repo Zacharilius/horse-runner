@@ -52,10 +52,13 @@ export default class Background {
         let x = 0;
         this.context.imageSmoothingEnabled = false;
 		this.context.canvas.addEventListener('tick', (event: Event) => {
-            console.log('this.image.width', this.image.width);
-            console.log('this.image.height', this.image.height);
             x += (this.direction * this.speed);
             x %= this.image.width;
+
+            // Draw sky
+            this.context.fillStyle = 'skyblue';
+            this.context.fillRect(0, 0, this.canvas.width, this.canvas.height);
+
             // Draw image to left
             this.context.drawImage(
                 this.image,
