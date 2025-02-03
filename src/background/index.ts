@@ -1,4 +1,4 @@
-import forest from './forest.jpg';
+import forest from './1.png';
 import ImageTag from '../image'
 
 enum Direction {
@@ -7,6 +7,8 @@ enum Direction {
 };
 
 const SPEED = 30;
+
+const SCALE = 0.2;
 
 export default class Background {
     private canvas: HTMLCanvasElement;
@@ -19,6 +21,7 @@ export default class Background {
     constructor (canvas: HTMLCanvasElement, context: CanvasRenderingContext2D) {
         this.canvas = canvas;
         this.context = context;
+        // TODO: Handle async nature of loading image.
         this.image = ImageTag.getImage(forest);
         this.setupEventListener();   
     }
@@ -47,7 +50,10 @@ export default class Background {
 
     private setupEventListener () {
         let x = 0;
+        this.context.imageSmoothingEnabled = false;
 		this.context.canvas.addEventListener('tick', (event: Event) => {
+            console.log('this.image.width', this.image.width);
+            console.log('this.image.height', this.image.height);
             x += (this.direction * this.speed);
             x %= this.image.width;
             // Draw image to left
@@ -59,8 +65,8 @@ export default class Background {
                 this.image.height,
                 0,
                 0,
-                this.canvas.width,
-                this.canvas.height,
+                this.image.width * SCALE,
+                this.image.height * SCALE,
             );
             // Draw center image
             this.context.drawImage(
@@ -71,10 +77,10 @@ export default class Background {
                 this.image.height,
                 0,
                 0,
-                this.canvas.width,
-                this.canvas.height,
+                this.image.width * SCALE,
+                this.image.height * SCALE,
             );
-            // Draw image to right
+            // // Draw image to right
             this.context.drawImage(
                 this.image,
                 x - this.image.width,
@@ -83,8 +89,8 @@ export default class Background {
                 this.image.height,
                 0,
                 0,
-                this.canvas.width,
-                this.canvas.height,
+                this.image.width * SCALE,
+                this.image.height * SCALE,
             );
         });
     }
