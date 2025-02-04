@@ -15,16 +15,20 @@ import ImageTag from '../image'
 import Background from '../background';
 import Sound from '../sound';
 
-
 const FRAME_WIDTH = 64;
 const FRAME_HEIGHT = 48;
 
-enum HorseRunDirections {
+enum HorseMovementDirections {
     left = 8,
     right = 9,
     down = 10,
     up = 11,
 }
+
+const BackgroundMovementDirections = new Set([
+    HorseMovementDirections.left,
+    HorseMovementDirections.right,
+]);
 
 interface SpriteLocation {
     numColumns: number;
@@ -50,7 +54,7 @@ export default class Horse {
     private image: HTMLImageElement;
     private imageIndex: number = 0;
 
-    private horseDirection: HorseRunDirections = HorseRunDirections.left
+    private horseDirection: HorseMovementDirections = HorseMovementDirections.left
     private isHorseMoving: boolean = false;
     private isHorseRunning: boolean = false;
 
@@ -80,17 +84,15 @@ export default class Horse {
 
     private setupKeyPress () {
         window.addEventListener('keydown', (event) => {
-            console.log(event.key);
+            // TODO: Refactor key to be enum.
             if (event.key === 'ArrowUp') {
-                // TODO: Move all these function calls to the render and update the functions there....
-                // This should just be state modification.
-                this.startHorseMoving(HorseRunDirections.up);
+                this.startHorseMoving(HorseMovementDirections.up);
             } else if (event.key === 'ArrowDown') {
-                this.startHorseMoving(HorseRunDirections.down);
+                this.startHorseMoving(HorseMovementDirections.down);
             } else if (event.key === 'ArrowLeft') {
-                this.startHorseMoving(HorseRunDirections.left);
+                this.startHorseMoving(HorseMovementDirections.left);
             } else if (event.key === 'ArrowRight') {
-                this.startHorseMoving(HorseRunDirections.right);
+                this.startHorseMoving(HorseMovementDirections.right);
             } else if (event.key === ' ') {
                 const imageIndex = (this.imageIndex + 1) % horseImages.length
                 this.setHorse(imageIndex)
@@ -100,9 +102,8 @@ export default class Horse {
                 this.isHorseRunning = true;
             }
 
-            if (this.isHorseRunning && this.isHorseMoving) {
-                this.startHorseRunning();
-            }
+            // Prevents scrolling when pressing arrow keys.
+            event.preventDefault();
         });
 
         const KEY_UPS_TO_STOP_MOVEMENT = new Set<string>([
@@ -114,31 +115,16 @@ export default class Horse {
 
         window.addEventListener('keyup', (event) => {
             if (KEY_UPS_TO_STOP_MOVEMENT.has(event.key)) {
-                this.background.setMovingStop();
                 this.isHorseRunning = false;
                 this.isHorseMoving = false;
             } else if (event.key === 'r') {
                 this.isHorseRunning = false;
             }
-
         });
     }
-    private startHorseMoving (direction: HorseRunDirections) {
+    private startHorseMoving (direction: HorseMovementDirections) {
         this.horseDirection = direction;
         this.isHorseMoving = true;
-
-        // Handle moving background to make horse look like it's moving
-        if (this.horseDirection === HorseRunDirections.left) {
-            this.background.setWalking();
-            this.background.setMovingLeft();
-        } else if (this.horseDirection === HorseRunDirections.right) {
-            this.background.setWalking();
-            this.background.setMovingRight();
-        }
-    }
-
-    private startHorseRunning () {
-        this.background.setRunning();
     }
 
     private setHorse (imageIndex: number) {
@@ -157,12 +143,34 @@ export default class Horse {
 
         // Handling starting moving sounds;
         if (this.isHorseMoving && this.isHorseRunning) {
-            // Only play 1 moving sound at a time time;
-            this.runningSound.play();
-            // Is this still needed???
+            // Only play 1 moving sound at a time;
             this.walkingSound.stop();
+            this.runningSound.play();
         } else if (this.isHorseMoving) {
             this.walkingSound.play();
+        }
+    }
+
+    private handleMovingBackground () {
+        const shouldMoveBackground = BackgroundMovementDirections.has(this.horseDirection);
+        if (shouldMoveBackground) {
+            if (this.horseDirection === HorseMovementDirections.left) {
+                this.background.setMovingLeft();
+            } else if (this.horseDirection === HorseMovementDirections.right) {
+                this.background.setMovingRight();
+            }
+
+            if (this.isHorseMoving) {
+                if (this.isHorseRunning) {
+                    this.background.setRunning();
+                } else {
+                    this.background.setWalking();
+                }
+            } else {
+                this.background.setMovingStop();
+            }
+        } else {
+            this.background.setMovingStop();
         }
     }
 
@@ -195,6 +203,7 @@ export default class Horse {
         let currentFrame = 0;
 		this.context.canvas.addEventListener('tick', (_event: Event) => {
             this.handleMovementSounds();
+            this.handleMovingBackground();
             if (this.isHorseMoving) {
                 // Pick a new frame
                 currentFrame++;

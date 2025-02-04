@@ -6,7 +6,8 @@ enum Direction {
     Right = 1,
 };
 
-const SPEED = 30;
+const WALKING_SPEED = 10;
+const RUNNING_SPEED = 60;
 
 const SCALE = 0.2;
 
@@ -27,12 +28,10 @@ export default class Background {
     }
 
     public setMovingLeft () {
-        // this.speed = SPEED;
         this.direction = Direction.Left;
     }
 
     public setMovingRight () {
-        // this.speed = SPEED;
         this.direction = Direction.Right;
     }
 
@@ -41,11 +40,11 @@ export default class Background {
     }
 
     public setWalking () {
-        this.speed = 10;
+        this.speed = WALKING_SPEED;
     }
 
     public setRunning () {
-        this.speed = 60;
+        this.speed = RUNNING_SPEED;
     }
 
     private setupEventListener () {
