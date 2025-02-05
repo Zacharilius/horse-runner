@@ -1,4 +1,4 @@
-import forest from './1.png';
+import trail from './images/1.png';
 import ImageTag from '../image'
 
 enum Direction {
@@ -23,7 +23,7 @@ export default class Background {
         this.canvas = canvas;
         this.context = context;
         // TODO: Handle async nature of loading image.
-        this.image = ImageTag.getImage(forest);
+        this.image = ImageTag.getImage(trail);
         this.setupEventListener();   
     }
 
