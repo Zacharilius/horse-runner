@@ -22,7 +22,7 @@ class Game {
     private initTicker () {
         window.setInterval(() => {
             this.tick();
-        }, 75);
+        }, 30);
         // TODO: Look into using this
         // window.requestAnimationFrame(() => {
 		// 	this.tick();

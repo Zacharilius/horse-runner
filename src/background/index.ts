@@ -1,5 +1,8 @@
-import trail from './images/1.png';
 import ImageTag from '../image'
+
+import hills from './images/hills.png';
+import trail from './images/trail.png';
+import trees from './images/trees.png';
 
 enum Direction {
     Left = -1,
@@ -9,12 +12,42 @@ enum Direction {
 const WALKING_SPEED = 10;
 const RUNNING_SPEED = 60;
 
-const SCALE = 0.2;
+// TODO: Move this to a separate file.
+abstract class BackgroundImage {
+    protected image: HTMLImageElement;
 
+    constructor (imagePath: string) {
+        this.image = ImageTag.getImage(imagePath);
+    }
+
+    public getElement (): HTMLImageElement {
+        return this.image;
+    }
+
+    abstract getCanvasXOffset (canvas: HTMLCanvasElement, scale: number): number;
+}
+
+class BackgroundImageOnBottom extends BackgroundImage{
+    constructor (imagePath: string) {
+        super(imagePath);
+    }
+    public getCanvasXOffset (canvas: HTMLCanvasElement, scale: number) {
+        return canvas.height - (this.image.height * scale)
+    }
+}
+
+class BackgroundImageOnBottomWithOffset extends BackgroundImageOnBottom{
+    constructor (imagePath: string, public yOffset: number) {
+        super(imagePath);
+    }
+    public getCanvasXOffset (canvas: HTMLCanvasElement, scale: number) {
+        return super.getCanvasXOffset(canvas, scale) - this.yOffset;
+    }
+}
 export default class Background {
     private canvas: HTMLCanvasElement;
     private context: CanvasRenderingContext2D;
-    private image: HTMLImageElement;
+    private images: BackgroundImage[];
 
     private speed: number = 0;
     private direction: Direction = Direction.Left;
@@ -22,8 +55,11 @@ export default class Background {
     constructor (canvas: HTMLCanvasElement, context: CanvasRenderingContext2D) {
         this.canvas = canvas;
         this.context = context;
-        // TODO: Handle async nature of loading image.
-        this.image = ImageTag.getImage(trail);
+        this.images = [
+            new BackgroundImageOnBottom(trail),
+            new BackgroundImageOnBottomWithOffset(hills, 45),
+            new BackgroundImageOnBottomWithOffset(trees, 55),
+        ];
         this.setupEventListener();   
     }
 
@@ -50,50 +86,41 @@ export default class Background {
     private setupEventListener () {
         let x = 0;
         this.context.imageSmoothingEnabled = false;
-		this.context.canvas.addEventListener('tick', (event: Event) => {
-            x += (this.direction * this.speed);
-            x %= this.image.width;
-
+		this.context.canvas.addEventListener('tick', (_event: Event) => {
             // Draw sky
             this.context.fillStyle = 'skyblue';
             this.context.fillRect(0, 0, this.canvas.width, this.canvas.height);
 
-            // Draw image to left
-            this.context.drawImage(
-                this.image,
-                x + this.image.width,
-                0,
-                this.image.width,
-                this.image.height,
-                0,
-                0,
-                this.image.width * SCALE,
-                this.image.height * SCALE,
-            );
-            // Draw center image
-            this.context.drawImage(
-                this.image,
-                x,
-                0,
-                this.image.width,
-                this.image.height,
-                0,
-                0,
-                this.image.width * SCALE,
-                this.image.height * SCALE,
-            );
-            // // Draw image to right
-            this.context.drawImage(
-                this.image,
-                x - this.image.width,
-                0,
-                this.image.width,
-                this.image.height,
-                0,
-                0,
-                this.image.width * SCALE,
-                this.image.height * SCALE,
-            );
+            // When drawing left/right images we need to position the image a little
+            // offset to prevent a line between images.
+            const BUFFFER_PIXELS = 10;
+
+            x += (this.direction * this.speed);
+            // All background images are tne same width.
+            // TODO: Find a better way to get the element in case images[0] is empty.
+            x %= this.images?.[0].getElement().width;
+            this.images.forEach((image) => {
+                const imageElement = image.getElement();
+                const x_offsets = [
+                    x,
+                    x - imageElement.width + BUFFFER_PIXELS,
+                    x + imageElement.width - BUFFFER_PIXELS,
+                ];
+                x_offsets.forEach((x) => {
+                    const scale = this.canvas.width / imageElement.width;
+                    this.context.drawImage(
+                        imageElement,
+                        x,
+                        0,
+                        imageElement.width,
+                        imageElement.height,
+                        0,
+                        image.getCanvasXOffset(this.canvas, scale),
+                        imageElement.width * scale,
+                        imageElement.height * scale,
+                    );
+                });
+            });
         });
     }
 }

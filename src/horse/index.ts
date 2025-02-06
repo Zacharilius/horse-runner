@@ -219,13 +219,12 @@ export default class Horse {
 
             // Update rows and columns in sprite sheet
             let column = currentFrame % numColumns;
-
             this.context.drawImage(
                 this.image, column * frameWidth, row * frameHeight,
                 frameWidth,
                 frameHeight,
                 (this.canvas.width / 2) - (FRAME_WIDTH/ 2),
-                (this.canvas.height / 2) - (FRAME_HEIGHT/ 2),
+                (this.canvas.height / 2),
                 frameWidth,
                 frameHeight,
             );
