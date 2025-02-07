@@ -1,5 +1,9 @@
-import ImageTag from '../image'
 
+import {
+    BackgroundImage,
+    BackgroundImageOnBottom,
+    BackgroundImageOnBottomWithOffset
+} from './images';
 import hills from './images/hills.png';
 import trail from './images/trail.png';
 import trees from './images/trees.png';
@@ -9,41 +13,6 @@ enum Direction {
     Right = 1,
 };
 
-const WALKING_SPEED = 10;
-const RUNNING_SPEED = 60;
-
-// TODO: Move this to a separate file.
-abstract class BackgroundImage {
-    protected image: HTMLImageElement;
-
-    constructor (imagePath: string) {
-        this.image = ImageTag.getImage(imagePath);
-    }
-
-    public getElement (): HTMLImageElement {
-        return this.image;
-    }
-
-    abstract getCanvasXOffset (canvas: HTMLCanvasElement, scale: number): number;
-}
-
-class BackgroundImageOnBottom extends BackgroundImage{
-    constructor (imagePath: string) {
-        super(imagePath);
-    }
-    public getCanvasXOffset (canvas: HTMLCanvasElement, scale: number) {
-        return canvas.height - (this.image.height * scale)
-    }
-}
-
-class BackgroundImageOnBottomWithOffset extends BackgroundImageOnBottom{
-    constructor (imagePath: string, public yOffset: number) {
-        super(imagePath);
-    }
-    public getCanvasXOffset (canvas: HTMLCanvasElement, scale: number) {
-        return super.getCanvasXOffset(canvas, scale) - this.yOffset;
-    }
-}
 export default class Background {
     private canvas: HTMLCanvasElement;
     private context: CanvasRenderingContext2D;
@@ -63,24 +32,18 @@ export default class Background {
         this.setupEventListener();   
     }
 
-    public setMovingLeft () {
+    public startMovingLeft (speed: number) {
         this.direction = Direction.Left;
+        this.speed = speed;
     }
 
-    public setMovingRight () {
+    public startMovingRight (speed: number) {
         this.direction = Direction.Right;
+        this.speed = speed;
     }
 
     public setMovingStop () {
         this.speed = 0;
-    }
-
-    public setWalking () {
-        this.speed = WALKING_SPEED;
-    }
-
-    public setRunning () {
-        this.speed = RUNNING_SPEED;
     }
 
     private setupEventListener () {

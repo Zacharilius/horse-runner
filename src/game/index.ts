@@ -1,43 +1,45 @@
 import Background from "../background";
 import Horse from "../horse";
 
-const FRAME_RATE = 40;
+const FRAME_RATE = 60;
 
 class Game {
     private canvas: HTMLCanvasElement;
     private context: CanvasRenderingContext2D;
-    private background: Background;
-    private horse: Horse
 
     constructor () {
         this.canvas = document!.getElementById('main-canvas') as HTMLCanvasElement;
         this.context = this.canvas!.getContext('2d') as CanvasRenderingContext2D;
 
-        this.background = new Background(this.canvas, this.context);
-        this.horse = new Horse(this.canvas, this.context, this.background);
+        // Loads all the images and sounds
+        const background = new Background(this.canvas, this.context);
+        new Horse(this.canvas, this.context, background);
 
         this.initTicker();
     }
 
-    private initTicker () {
-        window.setInterval(() => {
-            this.tick();
-        }, 30);
-        // TODO: Look into using this
-        // window.requestAnimationFrame(() => {
-		// 	this.tick();
-		// 	// this.initTicker();
-		// });
+    private initTicker (lastFrame = performance.now()) {
+        window.requestAnimationFrame(() => {
+			const newLastFrame = this.tick(lastFrame);
+			this.initTicker(newLastFrame);
+		});
     }
 
-    private tick () {
-		const tick: CustomEvent = new CustomEvent('tick', {
-			bubbles: true,
-			cancelable: true,
-			composed: false,
-		});
-		this.context.clearRect(0, 0, this.context.canvas.width, this.context.canvas.height);
-		this.canvas.dispatchEvent(tick);
+    private tick (lastFrame: DOMHighResTimeStamp): DOMHighResTimeStamp {
+        const frameInterval = 1000 / FRAME_RATE;
+        const now = performance.now();
+        const elapsed = now - lastFrame;
+        if (elapsed > frameInterval) {
+            const tick: CustomEvent = new CustomEvent('tick', {
+                bubbles: true,
+                cancelable: true,
+                composed: false,
+            });
+            this.context.clearRect(0, 0, this.context.canvas.width, this.context.canvas.height);
+            this.canvas.dispatchEvent(tick);
+            return now;
+        }
+        return lastFrame;
     }
 }
 

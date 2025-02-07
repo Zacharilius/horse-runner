@@ -25,6 +25,9 @@ enum HorseMovementDirections {
     up = 11,
 }
 
+const WALKING_SPEED = 15;
+const RUNNING_SPEED = 45;
+
 const BackgroundMovementDirections = new Set([
     HorseMovementDirections.left,
     HorseMovementDirections.right,
@@ -152,25 +155,23 @@ export default class Horse {
     }
 
     private handleMovingBackground () {
-        const shouldMoveBackground = BackgroundMovementDirections.has(this.horseDirection);
-        if (shouldMoveBackground) {
-            if (this.horseDirection === HorseMovementDirections.left) {
-                this.background.setMovingLeft();
-            } else if (this.horseDirection === HorseMovementDirections.right) {
-                this.background.setMovingRight();
-            }
-
-            if (this.isHorseMoving) {
-                if (this.isHorseRunning) {
-                    this.background.setRunning();
-                } else {
-                    this.background.setWalking();
-                }
-            } else {
-                this.background.setMovingStop();
-            }
+        const speed = this.getMovingSpeed();
+        if (this.horseDirection === HorseMovementDirections.left) {
+            this.background.startMovingLeft(speed);
+        } else if (this.horseDirection === HorseMovementDirections.right) {
+            this.background.startMovingRight(speed);
         } else {
             this.background.setMovingStop();
+        }
+    }
+
+    private getMovingSpeed () {
+        if (this.isHorseMoving && this.isHorseRunning) {
+            return RUNNING_SPEED;
+        } else if (this.isHorseMoving) {
+            return WALKING_SPEED;
+        } else {
+            return 0;
         }
     }
 
@@ -197,9 +198,6 @@ export default class Horse {
     }
 
     private setupEventListener () {
-        let frameWidth = FRAME_WIDTH;
-        let frameHeight = FRAME_HEIGHT;
-
         let currentFrame = 0;
 		this.context.canvas.addEventListener('tick', (_event: Event) => {
             this.handleMovementSounds();
@@ -220,13 +218,13 @@ export default class Horse {
             // Update rows and columns in sprite sheet
             let column = currentFrame % numColumns;
             this.context.drawImage(
-                this.image, column * frameWidth, row * frameHeight,
-                frameWidth,
-                frameHeight,
-                (this.canvas.width / 2) - (FRAME_WIDTH/ 2),
-                (this.canvas.height / 2),
-                frameWidth,
-                frameHeight,
+                this.image, column * FRAME_WIDTH, row * FRAME_HEIGHT,
+                FRAME_WIDTH,
+                FRAME_HEIGHT,
+                (this.canvas.width / 2) - (FRAME_WIDTH / 2),
+                (this.canvas.height / 2),  // Draws on the path on the background
+                FRAME_WIDTH,
+                FRAME_HEIGHT,
             );
         });
     }
