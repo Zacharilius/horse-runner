@@ -133,16 +133,16 @@ export default class Horse {
     private handleMovementSounds () {
         // Handling stoping sounds;
         if (!this.isHorseRunning) {
-            this.runningSound.stop();
+            this.runningSound.pause();
         }
         if (!this.isHorseMoving) {
-            this.walkingSound.stop();
+            this.walkingSound.pause();
         }
 
         // Handling starting moving sounds;
         if (this.isHorseMoving && this.isHorseRunning) {
             // Only play 1 moving sound at a time;
-            this.walkingSound.stop();
+            this.walkingSound.pause();
             this.runningSound.play();
         } else if (this.isHorseMoving) {
             this.walkingSound.play();

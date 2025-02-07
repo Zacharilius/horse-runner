@@ -10,7 +10,7 @@ export default class Sound {
         this.element.play();
     }
 
-    public stop () {
+    public pause () {
         this.element.pause();
     }
 
