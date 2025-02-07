@@ -28,11 +28,6 @@ enum HorseMovementDirections {
 const WALKING_SPEED = 15;
 const RUNNING_SPEED = 45;
 
-const BackgroundMovementDirections = new Set([
-    HorseMovementDirections.left,
-    HorseMovementDirections.right,
-]);
-
 interface SpriteLocation {
     numColumns: number;
     numRows: number;
@@ -77,8 +72,8 @@ export default class Horse {
         this.imageIndex = Math.floor(Math.random() * horseImages.length);
         this.image = horseImages[this.imageIndex];
 
-        this.walkingSound = Sound.createAutoPlayLoop(horseWalking);
-        this.runningSound = Sound.createAutoPlayLoop(horseGalloping);
+        this.walkingSound = new Sound(horseWalking);
+        this.runningSound = new Sound(horseGalloping);
         this.neighingSound = new Sound(horseNeighing);
 
         this.setupKeyPress();
@@ -199,7 +194,7 @@ export default class Horse {
 
     private setupEventListener () {
         let currentFrame = 0;
-		this.context.canvas.addEventListener('tick', (_event: Event) => {
+		this.context.canvas.addEventListener('tick', () => {
             this.handleMovementSounds();
             this.handleMovingBackground();
             if (this.isHorseMoving) {
@@ -207,16 +202,16 @@ export default class Horse {
                 currentFrame++;
             }
 
-            let { numColumns, numRows, row } = this.getHorseSpriteSheetLocation();
+            const { numColumns, numRows, row } = this.getHorseSpriteSheetLocation();
 
             // Make the frames loop
-            let maxFrame = numColumns * numRows - 1;
+            const maxFrame = numColumns * numRows - 1;
             if (currentFrame > maxFrame){
                 currentFrame = 0;
             }
 
             // Update rows and columns in sprite sheet
-            let column = currentFrame % numColumns;
+            const column = currentFrame % numColumns;
             this.context.drawImage(
                 this.image, column * FRAME_WIDTH, row * FRAME_HEIGHT,
                 FRAME_WIDTH,

@@ -5,10 +5,14 @@
   "scripts": {
     "dev": "rsbuild dev --open",
     "build": "rsbuild build",
+    "lint": "npx eslint .",
     "preview": "rsbuild preview"
   },
   "devDependencies": {
+    "@eslint/js": "^9.19.0",
     "@rsbuild/core": "^1.1.8",
-    "typescript": "^5.7.2"
+    "eslint": "^9.19.0",
+    "typescript": "^5.7.3",
+    "typescript-eslint": "^8.23.0"
   }
 }

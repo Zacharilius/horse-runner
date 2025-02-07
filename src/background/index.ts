@@ -49,7 +49,7 @@ export default class Background {
     private setupEventListener () {
         let x = 0;
         this.context.imageSmoothingEnabled = false;
-		this.context.canvas.addEventListener('tick', (_event: Event) => {
+		this.context.canvas.addEventListener('tick', () => {
             // Draw sky
             this.context.fillStyle = 'skyblue';
             this.context.fillRect(0, 0, this.canvas.width, this.canvas.height);
