@@ -8,4 +8,4 @@ document.querySelector('#root')!.innerHTML = `
 </div>
 `;
 
-init();
+init(document!.getElementById('main-canvas') as HTMLCanvasElement);

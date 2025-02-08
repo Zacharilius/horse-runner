@@ -10,7 +10,7 @@ export default class ImageTag {
         return new ImageTag(src).getElement()
     }
 
-    public getElement (): HTMLImageElement {
+    private getElement (): HTMLImageElement {
         return this.element;
     }
 }

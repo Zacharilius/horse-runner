@@ -7,8 +7,8 @@ class Game {
     private canvas: HTMLCanvasElement;
     private context: CanvasRenderingContext2D;
 
-    constructor () {
-        this.canvas = document!.getElementById('main-canvas') as HTMLCanvasElement;
+    constructor (canvas: HTMLCanvasElement) {
+        this.canvas = canvas;
         this.context = this.canvas!.getContext('2d') as CanvasRenderingContext2D;
 
         // Loads all the images and sounds
@@ -35,7 +35,7 @@ class Game {
                 cancelable: true,
                 composed: false,
             });
-            this.context.clearRect(0, 0, this.context.canvas.width, this.context.canvas.height);
+            this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
             this.canvas.dispatchEvent(tick);
             return now;
         }
@@ -43,6 +43,6 @@ class Game {
     }
 }
 
-export const init = () => {
-    new Game();
+export const init = (canvas: HTMLCanvasElement) => {
+    new Game(canvas);
 };

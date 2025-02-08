@@ -49,7 +49,7 @@ export default class Background {
     private setupEventListener () {
         let x = 0;
         this.context.imageSmoothingEnabled = false;
-		this.context.canvas.addEventListener('tick', () => {
+        this.canvas.addEventListener('tick', () => {
             // Draw sky
             this.context.fillStyle = 'skyblue';
             this.context.fillRect(0, 0, this.canvas.width, this.canvas.height);
@@ -85,5 +85,14 @@ export default class Background {
                 });
             });
         });
+    }
+
+    //==========================================================================
+    // For testing purposes
+    public getSpeed () {
+        return this.speed;
+    }
+    public getDirection () {
+        return this.direction;
     }
 }
