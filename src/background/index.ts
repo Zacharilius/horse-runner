@@ -21,9 +21,9 @@ export default class Background {
     private speed: number = 0;
     private direction: Direction = Direction.Left;
 
-    constructor (canvas: HTMLCanvasElement, context: CanvasRenderingContext2D) {
+    constructor (canvas: HTMLCanvasElement) {
         this.canvas = canvas;
-        this.context = context;
+        this.context = canvas.getContext('2d') as CanvasRenderingContext2D;
         this.images = [
             new BackgroundImageOnBottom(trail),
             new BackgroundImageOnBottomWithOffset(hills, 45),

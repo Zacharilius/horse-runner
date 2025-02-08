@@ -63,11 +63,10 @@ export default class Horse {
 
     constructor (
         canvas: HTMLCanvasElement,
-        context: CanvasRenderingContext2D,
         background: Background,
     ) {
         this.canvas = canvas;
-        this.context = context;
+        this.context = canvas.getContext('2d') as CanvasRenderingContext2D;
         this.background = background;
         this.imageIndex = Math.floor(Math.random() * horseImages.length);
         this.image = horseImages[this.imageIndex];
@@ -194,7 +193,7 @@ export default class Horse {
 
     private setupEventListener () {
         let currentFrame = 0;
-		this.context.canvas.addEventListener('tick', () => {
+		this.canvas.addEventListener('tick', () => {
             this.handleMovementSounds();
             this.handleMovingBackground();
             if (this.isHorseMoving) {

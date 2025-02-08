@@ -28,6 +28,7 @@ const config = {
 
   collectCoverageFrom: [
     'src/**/*.{ts,tsx}',
+    '!src/**/*.d.ts',
   ],
 
   // An array of regexp pattern strings used to skip coverage collection
@@ -139,7 +140,7 @@ const config = {
   // runner: "jest-runner",
 
   // The paths to modules that run some code to configure or set up the testing environment before each test
-  // setupFiles: [],
+  setupFiles: ["jest-canvas-mock"],
 
   // A list of paths to modules that run some code to configure or set up the testing framework before each test
   // setupFilesAfterEnv: [],

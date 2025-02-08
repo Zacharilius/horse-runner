@@ -12,8 +12,8 @@ class Game {
         this.context = this.canvas!.getContext('2d') as CanvasRenderingContext2D;
 
         // Loads all the images and sounds
-        const background = new Background(this.canvas, this.context);
-        new Horse(this.canvas, this.context, background);
+        const background = new Background(this.canvas);
+        new Horse(this.canvas, background);
 
         this.initTicker();
     }

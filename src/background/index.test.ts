@@ -1,24 +1,9 @@
 import Background from './index';
 
-const mockCanvas = {
-    addEventListener: jest.fn(),
-    height: 100,
-    width: 100,
-};
-
-const mockContext = {
-    fillRect: jest.fn(),
-    drawImage: jest.fn(),
-    fillStyle: '',
-};
-
 const mockSpeed = 10;;
 
-const createBackground = (): Background => {
-    return new Background(
-        mockCanvas as unknown as HTMLCanvasElement,
-        mockContext as unknown as CanvasRenderingContext2D
-    );
+const createBackground = (canvas: HTMLCanvasElement = document.createElement('canvas')): Background => {
+    return new Background(canvas);
 }
 
 test('Background - setMovingStop should set speed to 0', () => {
@@ -42,14 +27,17 @@ test('Background - startMovingRight should set speed to 0 and direction to left'
 });
 
 test('Background - tick event listener', () => {
-    createBackground();
-    const eventCallback = mockCanvas.addEventListener.mock.calls[0][1];
-    eventCallback();
+    const canvas = document.createElement('canvas') as jest.Mocked<HTMLCanvasElement>;
+    jest.spyOn(canvas, 'addEventListener');
+    createBackground(canvas);
+    const context = canvas.getContext('2d') as CanvasRenderingContext2D;
+    const eventCallback = canvas.addEventListener.mock.calls[0][1] as EventListener;
+    eventCallback(new Event('tick'));
 
-    // Color background blue;
-    expect(mockContext.fillStyle).toBe('skyblue');
-    expect(mockContext.fillRect).toHaveBeenCalledWith(0, 0, mockCanvas.width, mockCanvas.height);
+    // Color background skyblue;
+    expect(context.fillStyle).toBe('#87ceeb');
+    expect(context.fillRect).toHaveBeenCalledWith(0, 0, canvas.width, canvas.height);
 
     // Called 9 times because we have 3 images and we draw them 3 times.
-    expect(mockContext.drawImage).toHaveBeenCalledTimes(9);
+    expect(context.drawImage).toHaveBeenCalledTimes(9);
 });
