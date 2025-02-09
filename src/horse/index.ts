@@ -18,6 +18,9 @@ import Sound from '../sound';
 const FRAME_WIDTH = 64;
 const FRAME_HEIGHT = 48;
 
+const TOP_CANVAS_PATH = 60;
+const BOTTOM_CANVAS_PATH = 85;
+
 enum HorseMovementDirections {
     left = 8,
     right = 9,
@@ -55,6 +58,9 @@ export default class Horse {
     private horseDirection: HorseMovementDirections = HorseMovementDirections.left
     private isHorseMoving: boolean = false;
     private isHorseRunning: boolean = false;
+    private horseY: number;
+
+    private isJumping: boolean;
 
     // Sounds
     private walkingSound: Sound;
@@ -70,6 +76,11 @@ export default class Horse {
         this.background = background;
         this.imageIndex = Math.floor(Math.random() * horseImages.length);
         this.image = horseImages[this.imageIndex];
+
+        // Initialize in center of the path
+        this.horseY = TOP_CANVAS_PATH - (TOP_CANVAS_PATH - BOTTOM_CANVAS_PATH) / 2;
+
+        this.isJumping = false;
 
         this.walkingSound = new Sound(horseWalking);
         this.runningSound = new Sound(horseGalloping);
@@ -90,13 +101,34 @@ export default class Horse {
                 this.startHorseMoving(HorseMovementDirections.left);
             } else if (event.key === 'ArrowRight') {
                 this.startHorseMoving(HorseMovementDirections.right);
-            } else if (event.key === ' ') {
+            } else if (event.key === 's') {
                 const imageIndex = (this.imageIndex + 1) % horseImages.length
                 this.setHorse(imageIndex)
             } else if (event.key === 'n') {
                 this.neighingSound.play();
             } else if (event.key === 'r') {
                 this.isHorseRunning = true;
+            } else if (event.key === ' ') {
+                if (!this.isJumping && this.isMovingHorizontally()) {
+                    this.isJumping = true;
+                    let upCount = 6;
+                    const upInterval = window.setInterval(() => {
+                        if (upCount <= 0) {
+                            window.clearInterval(upInterval);
+                            let downCount = 6;
+                            const downInterval = window.setInterval(() => {
+                                if (downCount <= 0) {
+                                    window.clearInterval(downInterval);
+                                    this.isJumping = false;
+                                }
+                                downCount -= 1;
+                                this.horseY += 2;
+                            }, 50);
+                        }
+                        this.horseY -= 2;
+                        upCount -= 1;
+                    }, 50);
+                }
             }
 
             // Prevents scrolling when pressing arrow keys.
@@ -159,6 +191,25 @@ export default class Horse {
         }
     }
 
+    private handleMovingHorseVerticaly () {
+        if (this.isHorseMoving || this.isHorseRunning) {
+            const canMoveUp = (this.horseY - 1) > TOP_CANVAS_PATH;
+            const canMoveDown = this.horseY + 1 < BOTTOM_CANVAS_PATH;
+            if (this.horseDirection === HorseMovementDirections.up && canMoveUp) {
+                this.horseY -= 1;
+            } else if (this.horseDirection === HorseMovementDirections.down && canMoveDown) {
+                this.horseY += 1;
+            }
+        }
+    }
+
+    private isMovingHorizontally () {
+        return (
+            this.horseDirection === HorseMovementDirections.left ||
+            this.horseDirection === HorseMovementDirections.right
+        );
+    }
+
     private getMovingSpeed () {
         if (this.isHorseMoving && this.isHorseRunning) {
             return RUNNING_SPEED;
@@ -196,6 +247,8 @@ export default class Horse {
 		this.canvas.addEventListener('tick', () => {
             this.handleMovementSounds();
             this.handleMovingBackground();
+            this.handleMovingHorseVerticaly();
+
             if (this.isHorseMoving) {
                 // Pick a new frame
                 currentFrame++;
@@ -211,15 +264,46 @@ export default class Horse {
 
             // Update rows and columns in sprite sheet
             const column = currentFrame % numColumns;
+
+            // this.context.fillStyle = 'red';
+            // const horseBoundingBox = this.getHorseBoundingBox()
+            // this.context.fillRect(
+            //     horseBoundingBox.left,
+            //     horseBoundingBox.top,
+            //     horseBoundingBox.width,
+            //     horseBoundingBox.height,
+            // );
+
             this.context.drawImage(
-                this.image, column * FRAME_WIDTH, row * FRAME_HEIGHT,
+                this.image,
+                column * FRAME_WIDTH,
+                row * FRAME_HEIGHT,
                 FRAME_WIDTH,
                 FRAME_HEIGHT,
                 (this.canvas.width / 2) - (FRAME_WIDTH / 2),
-                (this.canvas.height / 2),  // Draws on the path on the background
+                this.horseY,
                 FRAME_WIDTH,
                 FRAME_HEIGHT,
             );
         });
+    }
+
+    private getHorseBoundingBox () {
+        const verticalHorseDirections = new Set([HorseMovementDirections.down, HorseMovementDirections.up]);
+        if (verticalHorseDirections.has(this.horseDirection)) {
+            return {
+                left: ((this.canvas.width / 2) - (FRAME_WIDTH / 2)) + FRAME_WIDTH / 2.6,
+                top: this.horseY + (FRAME_HEIGHT / 2),
+                width: FRAME_WIDTH / 4,
+                height: FRAME_HEIGHT / 2
+            }
+        } else {
+            return {
+                left: ((this.canvas.width / 2) - (FRAME_WIDTH / 2)) + FRAME_WIDTH / 4,
+                top: this.horseY + (FRAME_HEIGHT / 2),
+                width: FRAME_WIDTH / 2,
+                height: FRAME_HEIGHT / 2
+            }
+        }
     }
 }

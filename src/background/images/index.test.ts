@@ -35,11 +35,11 @@ test('BackgroundImageOnBottomWithOffset - should return Image', () => {
 test('BackgroundImageOnBottom - should calculate correctly', () => {
     const backgroundImage = new BackgroundImageOnBottom(MOCK_IMAGE_FILE_NAME);
     stubImageTagGetImage();
-    expect(backgroundImage.getCanvasXOffset(mockCanvas, mockScale)).toBe(100);
+    expect(backgroundImage.getCanvasYOffset(mockCanvas, mockScale)).toBe(100);
 });
 
 test('BackgroundImageOnBottomWithOffset - should calculate correctly', () => {
     const backgroundImage = new BackgroundImageOnBottomWithOffset(MOCK_IMAGE_FILE_NAME, MOCK_Y_OFFSET);
     stubImageTagGetImage();
-    expect(backgroundImage.getCanvasXOffset(mockCanvas, mockScale)).toBe(-100);
+    expect(backgroundImage.getCanvasYOffset(mockCanvas, mockScale)).toBe(-100);
 });

@@ -78,7 +78,7 @@ export default class Background {
                         imageElement.width,
                         imageElement.height,
                         0,
-                        image.getCanvasXOffset(this.canvas, scale),
+                        image.getCanvasYOffset(this.canvas, scale),
                         imageElement.width * scale,
                         imageElement.height * scale,
                     );
