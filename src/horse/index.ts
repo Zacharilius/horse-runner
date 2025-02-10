@@ -74,6 +74,7 @@ export default class Horse {
         this.canvas = canvas;
         this.context = canvas.getContext('2d') as CanvasRenderingContext2D;
         this.background = background;
+
         this.imageIndex = Math.floor(Math.random() * horseImages.length);
         this.image = horseImages[this.imageIndex];
 
@@ -109,6 +110,8 @@ export default class Horse {
             } else if (event.key === 'r') {
                 this.isHorseRunning = true;
             } else if (event.key === ' ') {
+                // TODO: Refactor: Move this logic to the tick event function.
+                // It is messy having movement reaction/handle codein 2 places.
                 if (!this.isJumping && this.isMovingHorizontally()) {
                     this.isJumping = true;
                     let upCount = 6;
@@ -193,24 +196,30 @@ export default class Horse {
 
     private handleMovingHorseVerticaly () {
         if (this.isHorseMoving || this.isHorseRunning) {
-            const canMoveUp = (this.horseY - 1) > TOP_CANVAS_PATH;
-            const canMoveDown = this.horseY + 1 < BOTTOM_CANVAS_PATH;
-            if (this.horseDirection === HorseMovementDirections.up && canMoveUp) {
+            if (this.horseDirection === HorseMovementDirections.up && this.canHorseMoveUp()) {
                 this.horseY -= 1;
-            } else if (this.horseDirection === HorseMovementDirections.down && canMoveDown) {
+            } else if (this.horseDirection === HorseMovementDirections.down && this.canHorseMoveDown()) {
                 this.horseY += 1;
             }
         }
     }
 
-    private isMovingHorizontally () {
+    private canHorseMoveUp (): boolean {
+        return (this.horseY - 1) > TOP_CANVAS_PATH;
+    }
+
+    private canHorseMoveDown (): boolean {
+        return this.horseY + 1 < BOTTOM_CANVAS_PATH;
+    }
+
+    private isMovingHorizontally (): boolean {
         return (
             this.horseDirection === HorseMovementDirections.left ||
             this.horseDirection === HorseMovementDirections.right
         );
     }
 
-    private getMovingSpeed () {
+    private getMovingSpeed (): number {
         if (this.isHorseMoving && this.isHorseRunning) {
             return RUNNING_SPEED;
         } else if (this.isHorseMoving) {
