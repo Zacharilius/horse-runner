@@ -18,6 +18,7 @@ export default class Background {
     private context: CanvasRenderingContext2D;
     private images: BackgroundImage[];
 
+    private x: number = 0;
     private speed: number = 0;
     private direction: Direction = Direction.Left;
 
@@ -46,8 +47,11 @@ export default class Background {
         this.speed = 0;
     }
 
+    public getX () {
+        return this.x
+    }
+
     private setupEventListener () {
-        let x = 0;
         this.context.imageSmoothingEnabled = false;
         this.canvas.addEventListener('tick', () => {
             // Draw sky
@@ -58,16 +62,16 @@ export default class Background {
             // offset to prevent a line between images.
             const BUFFFER_PIXELS = 10;
 
-            x += (this.direction * this.speed);
-            // All background images are tne same width.
+            this.x += (this.direction * this.speed);
+            // All background images are the same width.
             // TODO: Find a better way to get the element in case images[0] is empty.
-            x %= this.images?.[0].getElement().width;
+            this.x %= this.images?.[0].getElement().width;
             this.images.forEach((image) => {
                 const imageElement = image.getElement();
                 const x_offsets = [
-                    x,
-                    x - imageElement.width + BUFFFER_PIXELS,
-                    x + imageElement.width - BUFFFER_PIXELS,
+                    this.x,
+                    this.x - imageElement.width + BUFFFER_PIXELS,
+                    this.x + imageElement.width - BUFFFER_PIXELS,
                 ];
                 x_offsets.forEach((x) => {
                     const scale = this.canvas.width / imageElement.width;

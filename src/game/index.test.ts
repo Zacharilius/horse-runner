@@ -2,7 +2,10 @@ import { init } from './index';
 
 jest.mock('../background', () => {
     return {
-        default: jest.fn()
+        default: jest.fn().mockReturnValue({
+            getDirection: jest.fn().mockReturnValue(1),
+            getSpeed: jest.fn().mockReturnValue(10),
+        })
     };
 });
 

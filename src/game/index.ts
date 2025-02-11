@@ -1,5 +1,6 @@
 import Background from "../background";
 import Horse from "../horse";
+import Obstacle from "../obstacle";
 
 const FRAME_RATE = 60;
 
@@ -13,7 +14,8 @@ class Game {
 
         // Loads all the images and sounds
         const background = new Background(this.canvas);
-        new Horse(this.canvas, background);
+        const obstacle = new Obstacle(this.canvas, background);
+        new Horse(this.canvas, background, obstacle);
 
         this.initTicker();
     }

@@ -1,5 +1,6 @@
 import Horse from './index';
 import Background from '../background';
+import Obstacle from '../obstacle';
 
 jest.mock('../image', () => {
     return {
@@ -23,6 +24,10 @@ jest.mock('../sound', () => {
 
 test('Horse - should initialize', () => {
     const canvas = document.createElement('canvas');
-    const horse = new Horse(canvas as unknown as HTMLCanvasElement, {} as unknown as Background);
+    const horse = new Horse(
+        canvas as unknown as HTMLCanvasElement,
+        {} as unknown as Background,
+        {} as unknown as Obstacle,
+    );
     expect(horse).toBeInstanceOf(Horse);
 });

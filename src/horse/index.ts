@@ -14,6 +14,8 @@ import horseWalking from './sounds/horse-walking.mp3';
 import ImageTag from '../image'
 import Background from '../background';
 import Sound from '../sound';
+import { BoundingBox, isCollision } from '../bounding-box';
+import Obstacle from '../obstacle';
 
 const FRAME_WIDTH = 64;
 const FRAME_HEIGHT = 48;
@@ -52,6 +54,8 @@ export default class Horse {
     private canvas: HTMLCanvasElement;
     private context: CanvasRenderingContext2D;
     private background: Background;
+    private obstacle: Obstacle
+
     private image: HTMLImageElement;
     private imageIndex: number = 0;
 
@@ -70,10 +74,12 @@ export default class Horse {
     constructor (
         canvas: HTMLCanvasElement,
         background: Background,
+        obstacle: Obstacle,
     ) {
         this.canvas = canvas;
         this.context = canvas.getContext('2d') as CanvasRenderingContext2D;
         this.background = background;
+        this.obstacle = obstacle;
 
         this.imageIndex = Math.floor(Math.random() * horseImages.length);
         this.image = horseImages[this.imageIndex];
@@ -165,21 +171,18 @@ export default class Horse {
     }
 
     private handleMovementSounds () {
-        // Handling stoping sounds;
-        if (!this.isHorseRunning) {
+        if (this.canHorseMove() && (this.isHorseRunning || this.isHorseMoving)) {
+            // Handling starting moving sounds;
+            if (this.isHorseMoving && this.isHorseRunning) {
+                // Only play 1 moving sound at a time;
+                this.walkingSound.pause();
+                this.runningSound.play();
+            } else if (this.isHorseMoving) {
+                this.walkingSound.play();
+            }
+        } else {
             this.runningSound.pause();
-        }
-        if (!this.isHorseMoving) {
             this.walkingSound.pause();
-        }
-
-        // Handling starting moving sounds;
-        if (this.isHorseMoving && this.isHorseRunning) {
-            // Only play 1 moving sound at a time;
-            this.walkingSound.pause();
-            this.runningSound.play();
-        } else if (this.isHorseMoving) {
-            this.walkingSound.play();
         }
     }
 
@@ -196,26 +199,33 @@ export default class Horse {
 
     private handleMovingHorseVerticaly () {
         if (this.isHorseMoving || this.isHorseRunning) {
-            if (this.horseDirection === HorseMovementDirections.up && this.canHorseMoveUp()) {
+            if (this.canHorseMoveUp()) {
                 this.horseY -= 1;
-            } else if (this.horseDirection === HorseMovementDirections.down && this.canHorseMoveDown()) {
+            } else if (this.canHorseMoveDown()) {
                 this.horseY += 1;
             }
         }
     }
 
     private canHorseMoveUp (): boolean {
-        return (this.horseY - 1) > TOP_CANVAS_PATH;
+        return this.horseDirection === HorseMovementDirections.up && (this.horseY - 1) > TOP_CANVAS_PATH;
     }
 
     private canHorseMoveDown (): boolean {
-        return this.horseY + 1 < BOTTOM_CANVAS_PATH;
+        return this.horseDirection === HorseMovementDirections.down && (this.horseY + 1) < BOTTOM_CANVAS_PATH;
     }
 
     private isMovingHorizontally (): boolean {
         return (
             this.horseDirection === HorseMovementDirections.left ||
             this.horseDirection === HorseMovementDirections.right
+        );
+    }
+
+    private isMovingVertically (): boolean {
+        return (
+            this.horseDirection === HorseMovementDirections.up ||
+            this.horseDirection === HorseMovementDirections.down
         );
     }
 
@@ -251,6 +261,23 @@ export default class Horse {
         }
     }
 
+    private canHorseMove (): boolean {
+        if (this.isHorseMoving) {
+            // Horse must stay on the path. Do not let it run in place
+            if (this.isMovingVertically()) {
+                if (this.canHorseMoveUp() || this.canHorseMoveDown()) {
+                    return true;
+                } else {
+                    return false;
+                }
+            } else {
+                // Can always move horizontally if isHorseMoving.
+                return true;
+            }
+        }
+        return false;
+    }
+
     private setupEventListener () {
         let currentFrame = 0;
 		this.canvas.addEventListener('tick', () => {
@@ -258,7 +285,7 @@ export default class Horse {
             this.handleMovingBackground();
             this.handleMovingHorseVerticaly();
 
-            if (this.isHorseMoving) {
+            if (this.canHorseMove()) {
                 // Pick a new frame
                 currentFrame++;
             }
@@ -274,14 +301,20 @@ export default class Horse {
             // Update rows and columns in sprite sheet
             const column = currentFrame % numColumns;
 
-            // this.context.fillStyle = 'red';
-            // const horseBoundingBox = this.getHorseBoundingBox()
-            // this.context.fillRect(
-            //     horseBoundingBox.left,
-            //     horseBoundingBox.top,
-            //     horseBoundingBox.width,
-            //     horseBoundingBox.height,
-            // );
+            const horseBoundingBox = this.getHorseBoundingBox()
+            if (isCollision(
+                horseBoundingBox,
+                this.obstacle.getBoundingBox(),
+            )) {
+                // Bounding Box
+                this.context.fillStyle = 'red';
+                this.context.fillRect(
+                    horseBoundingBox.left,
+                    horseBoundingBox.top,
+                    horseBoundingBox.width,
+                    horseBoundingBox.height,
+                );
+            }
 
             this.context.drawImage(
                 this.image,
@@ -297,9 +330,8 @@ export default class Horse {
         });
     }
 
-    private getHorseBoundingBox () {
-        const verticalHorseDirections = new Set([HorseMovementDirections.down, HorseMovementDirections.up]);
-        if (verticalHorseDirections.has(this.horseDirection)) {
+    private getHorseBoundingBox (): BoundingBox {
+        if (this.isMovingVertically()) {
             return {
                 left: ((this.canvas.width / 2) - (FRAME_WIDTH / 2)) + FRAME_WIDTH / 2.6,
                 top: this.horseY + (FRAME_HEIGHT / 2),
