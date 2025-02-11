@@ -15,7 +15,6 @@ export const isCollision = (
         boundingBox1.top < boundingBox2.top + boundingBox2.height &&
         boundingBox1.top + boundingBox1.height > boundingBox2.top
     ) {
-        console.log('collision!!!')
         return true;
     } else {
         return false;

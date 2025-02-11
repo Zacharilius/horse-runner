@@ -15,9 +15,6 @@ export abstract class BackgroundImage {
 }
 
 export class BackgroundImageOnBottom extends BackgroundImage{
-    constructor (imagePath: string) {
-        super(imagePath);
-    }
     public getCanvasYOffset (canvas: HTMLCanvasElement, scale: number) {
         return canvas.height - (this.image.height * scale)
     }

@@ -57,11 +57,11 @@ export default class Horse {
     private obstacle: Obstacle
 
     private image: HTMLImageElement;
-    private imageIndex: number = 0;
+    private imageIndex = 0;
 
     private horseDirection: HorseMovementDirections = HorseMovementDirections.left
-    private isHorseMoving: boolean = false;
-    private isHorseRunning: boolean = false;
+    private isHorseMoving = false;
+    private isHorseRunning = false;
     private horseY: number;
 
     private isJumping: boolean;

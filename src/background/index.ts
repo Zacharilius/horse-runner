@@ -18,8 +18,8 @@ export default class Background {
     private context: CanvasRenderingContext2D;
     private images: BackgroundImage[];
 
-    private x: number = 0;
-    private speed: number = 0;
+    private x = 0;
+    private speed = 0;
     private direction: Direction = Direction.Left;
 
     constructor (canvas: HTMLCanvasElement) {

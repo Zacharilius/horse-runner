@@ -5,7 +5,7 @@ export default class Obstacle {
     private canvas: HTMLCanvasElement;
     private context: CanvasRenderingContext2D;
     private background: Background;
-    private x: number = 0;
+    private x = 0;
     private y: number;
 
     constructor (

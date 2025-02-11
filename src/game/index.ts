@@ -10,7 +10,7 @@ class Game {
 
     constructor (canvas: HTMLCanvasElement) {
         this.canvas = canvas;
-        this.context = this.canvas!.getContext('2d') as CanvasRenderingContext2D;
+        this.context = this.canvas.getContext('2d') as CanvasRenderingContext2D;
 
         // Loads all the images and sounds
         const background = new Background(this.canvas);
