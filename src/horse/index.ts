@@ -331,19 +331,23 @@ export default class Horse {
     }
 
     private getHorseBoundingBox (): BoundingBox {
+        // Covers the legs;
+        const top = this.horseY + (FRAME_HEIGHT * .8);
+        // .2 Covers the legs
+        const height = FRAME_HEIGHT * .2
         if (this.isMovingVertically()) {
             return {
-                left: ((this.canvas.width / 2) - (FRAME_WIDTH / 2)) + FRAME_WIDTH / 2.6,
-                top: this.horseY + (FRAME_HEIGHT / 2),
-                width: FRAME_WIDTH / 4,
-                height: FRAME_HEIGHT / 2
+                left: ((this.canvas.width / 2) - (FRAME_WIDTH / 2)) + FRAME_WIDTH / 2.5,  // todo less magic
+                top,
+                width: FRAME_WIDTH / 5,
+                height
             }
         } else {
             return {
-                left: ((this.canvas.width / 2) - (FRAME_WIDTH / 2)) + FRAME_WIDTH / 4,
-                top: this.horseY + (FRAME_HEIGHT / 2),
-                width: FRAME_WIDTH / 2,
-                height: FRAME_HEIGHT / 2
+                left: ((this.canvas.width / 2) - (FRAME_WIDTH / 2)) + FRAME_WIDTH / 2.8,  // todo less magic
+                top,
+                width: FRAME_WIDTH / 3,
+                height
             }
         }
     }
