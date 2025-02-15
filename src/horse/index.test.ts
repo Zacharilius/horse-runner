@@ -47,7 +47,7 @@ test('Horse - should play neighing sound when "n" key is pressed', () => {
     expect(mockNeighingSound.play).toHaveBeenCalled();
 });
 
-test.only('Horse - should run when keys are pressed', () => {
+test('Horse - should run when keys are pressed', () => {
     const canvas = getCanvas() as jest.Mocked<HTMLCanvasElement>;
     const context = canvas.getContext('2d') as CanvasRenderingContext2D;
     jest.spyOn(canvas, 'addEventListener');

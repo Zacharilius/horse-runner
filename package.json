@@ -7,7 +7,8 @@
     "build": "rsbuild build",
     "lint": "npx eslint .",
     "preview": "rsbuild preview",
-    "test": "jest"
+    "test": "jest",
+    "verify": "npm run lint && npm run test"
   },
   "devDependencies": {
     "@eslint/js": "^9.19.0",
