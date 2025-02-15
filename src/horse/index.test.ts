@@ -70,3 +70,61 @@ test('Horse - should run when keys are pressed', () => {
         48
     );
 });
+
+test('Horse - should run when keys are pressed', () => {
+    const canvas = getCanvas() as jest.Mocked<HTMLCanvasElement>;
+    const context = canvas.getContext('2d') as CanvasRenderingContext2D;
+    jest.spyOn(canvas, 'addEventListener');
+    jest.spyOn(context, 'drawImage');
+
+    const addEventListenerSpy = jest.spyOn(window, 'addEventListener');
+
+    getHorse(canvas);
+   
+    const keyDownEventHandler = addEventListenerSpy.mock.calls[0][1] as EventListener;
+    // Turn Horse Right
+    keyDownEventHandler(new KeyboardEvent('keydown', { key: 'ArrowLeft' }));
+    // Start Horse Running
+    keyDownEventHandler(new KeyboardEvent('keydown', { key: 'r' }));
+
+    const tickEventCallback = canvas.addEventListener.mock.calls[0][1] as EventListener;
+    // Move horse 3 times.
+    tickEventCallback(new Event('tick'));
+    tickEventCallback(new Event('tick'));
+    tickEventCallback(new Event('tick'));
+
+    expect(context.drawImage).toHaveBeenCalledTimes(3);
+    expect(context.drawImage).toHaveBeenNthCalledWith(1,
+        expect.any(HTMLImageElement),
+        64,
+        576,
+        64,
+        48,
+        118,
+        72.5,
+        64,
+        48
+    );
+    expect(context.drawImage).toHaveBeenNthCalledWith(2,
+        expect.any(HTMLImageElement),
+        128,
+        576,
+        64,
+        48,
+        118,
+        72.5,
+        64,
+        48
+    );
+    expect(context.drawImage).toHaveBeenNthCalledWith(3,
+        expect.any(HTMLImageElement),
+        192,
+        576,
+        64,
+        48,
+        118,
+        72.5,
+        64,
+        48
+    );
+});

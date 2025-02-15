@@ -47,10 +47,6 @@ export default class Background {
         this.speed = 0;
     }
 
-    public getX () {
-        return this.x
-    }
-
     private setupEventListener () {
         this.context.imageSmoothingEnabled = false;
         this.canvas.addEventListener('tick', () => {
