@@ -23,7 +23,7 @@ const FRAME_HEIGHT = 48;
 const TOP_CANVAS_PATH = 60;
 const BOTTOM_CANVAS_PATH = 85;
 
-enum HorseMovementDirections {
+export enum HorseMovementDirections {
     left = 8,
     right = 9,
     down = 10,
@@ -81,7 +81,7 @@ export default class Horse {
         this.background = background;
         this.obstacle = obstacle;
 
-        this.imageIndex = Math.floor(Math.random() * horseImages.length);
+        this.imageIndex = 0;
         this.image = horseImages[this.imageIndex];
 
         // Initialize in center of the path
@@ -294,7 +294,7 @@ export default class Horse {
 
             // Make the frames loop
             const maxFrame = numColumns * numRows - 1;
-            if (currentFrame > maxFrame){
+            if (currentFrame > maxFrame) {
                 currentFrame = 0;
             }
 
@@ -350,5 +350,27 @@ export default class Horse {
                 height
             }
         }
+    }
+
+    // =========================================================================
+    // Testing
+
+    public _getHorseState () {
+        return {
+            canvas: this.canvas,
+            context: this.context,
+            background: this.background,
+            obstacle: this.obstacle,
+            image: this.image,
+            imageIndex: this.imageIndex,
+            horseDirection: this.horseDirection,
+            isHorseMoving: this.isHorseMoving,
+            isHorseRunning: this.isHorseRunning,
+            horseY: this.horseY,
+            isJumping: this.isJumping,
+            walkingSound: this.walkingSound,
+            runningSound: this.runningSound,
+            neighingSound: this.neighingSound,
+        };
     }
 }

@@ -29,6 +29,7 @@ const config = {
   collectCoverageFrom: [
     'src/**/*.{ts,tsx}',
     '!src/**/*.d.ts',
+    '!src/index.ts',
   ],
 
   // An array of regexp pattern strings used to skip coverage collection
