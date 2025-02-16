@@ -65,6 +65,8 @@ export default class Horse {
     private horseY: number;
 
     private isJumping: boolean;
+    private isJumpingUpCount = 0;
+    private isJumpingDownCount = 0;
 
     // Sounds
     private walkingSound: Sound;
@@ -120,23 +122,6 @@ export default class Horse {
                 // It is messy having movement reaction/handle codein 2 places.
                 if (!this.isJumping && this.isMovingHorizontally()) {
                     this.isJumping = true;
-                    let upCount = 6;
-                    const upInterval = window.setInterval(() => {
-                        if (upCount <= 0) {
-                            window.clearInterval(upInterval);
-                            let downCount = 6;
-                            const downInterval = window.setInterval(() => {
-                                if (downCount <= 0) {
-                                    window.clearInterval(downInterval);
-                                    this.isJumping = false;
-                                }
-                                downCount -= 1;
-                                this.horseY += 2;
-                            }, 50);
-                        }
-                        this.horseY -= 2;
-                        upCount -= 1;
-                    }, 50);
                 }
             }
 
@@ -278,12 +263,44 @@ export default class Horse {
         return false;
     }
 
+    private handleJumping () {
+        const COUNT_FRAMES_TO_GO_UP_OR_DOWN = 6;
+        if (this.isJumping) {
+            const isStartOfJump = (
+                this.isJumpingUpCount == 0 &&
+                this.isJumpingDownCount == 0
+            );
+            if (isStartOfJump) {
+                this.isJumpingUpCount = COUNT_FRAMES_TO_GO_UP_OR_DOWN;
+            }
+
+            if (this.isJumpingUpCount >= 0) {
+                this.isJumpingUpCount -= 1;
+                this.horseY -= 2;
+
+                // On last up jump tick signal next tick to start jumping down.
+                if (this.isJumpingUpCount === 0) {
+                    this.isJumpingDownCount = COUNT_FRAMES_TO_GO_UP_OR_DOWN;
+                }
+            } else if (this.isJumpingDownCount >= 0) {
+                this.isJumpingDownCount -= 1;
+                this.horseY += 2;
+
+                // On last jump tick stop jumping.
+                if (this.isJumpingDownCount === 0) {
+                    this.isJumping = false;
+                }
+            }
+        }
+    }
+
     private setupEventListener () {
         let currentFrame = 0;
 		this.canvas.addEventListener('tick', () => {
             this.handleMovementSounds();
             this.handleMovingBackground();
             this.handleMovingHorseVerticaly();
+            this.handleJumping();
 
             if (this.canHorseMove()) {
                 // Pick a new frame
@@ -332,22 +349,19 @@ export default class Horse {
 
     private getHorseBoundingBox (): BoundingBox {
         // Covers the legs;
-        const top = this.horseY + (FRAME_HEIGHT * .8);
-        // .2 Covers the legs
-        const height = FRAME_HEIGHT * .2
         if (this.isMovingVertically()) {
             return {
                 left: ((this.canvas.width / 2) - (FRAME_WIDTH / 2)) + FRAME_WIDTH / 2.5,  // todo less magic
-                top,
+                top: this.horseY + (FRAME_HEIGHT * .8),
                 width: FRAME_WIDTH / 5,
-                height
+                height: FRAME_HEIGHT * .2
             }
         } else {
             return {
                 left: ((this.canvas.width / 2) - (FRAME_WIDTH / 2)) + FRAME_WIDTH / 2.8,  // todo less magic
-                top,
+                top: this.horseY + (FRAME_HEIGHT * .9),
                 width: FRAME_WIDTH / 3,
-                height
+                height: FRAME_HEIGHT * .1
             }
         }
     }

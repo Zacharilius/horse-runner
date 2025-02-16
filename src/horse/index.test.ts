@@ -47,6 +47,13 @@ class HorseTester {
     }
 
     // =========================================================================
+    // Jumping
+
+    public startHorseJumping () {
+        this.keyDownEventHandler(new KeyboardEvent('keydown', { key: ' ' }));
+    }
+
+    // =========================================================================
     // Movement and Direction
 
     public startHorseWalkingUp () {
@@ -94,20 +101,24 @@ class HorseTester {
     // =========================================================================
     // State
 
-    public isHorseWalking () {
+    public isHorseWalking (): boolean {
         return this.horse._getHorseState().isHorseMoving;
     }
 
-    public isHorseRunning () {
+    public isHorseRunning (): boolean {
         return this.horse._getHorseState().isHorseRunning;
     }
 
-    public getHorseDirection () {
+    public getHorseDirection (): HorseMovementDirections {
         return this.horse._getHorseState().horseDirection;
     }
 
-    public getHorseIndex () {
+    public getHorseIndex (): number {
         return this.horse._getHorseState().imageIndex;
+    }
+
+    public isHorseJumping (): boolean {
+        return this.horse._getHorseState().isJumping;
     }
 }
 
@@ -333,6 +344,23 @@ test('Horse - should start and stop moving when "ArrowUp" key up is pressed', ()
     expect(horseTester.isHorseWalking()).toBe(true);
     horseTester.stopHorseWalkingLeft();
     expect(horseTester.isHorseWalking()).toBe(false);
+});
+
+// -----------------------------------------------------------------------------
+// Jumping
+
+test('Horse - should jump when " " key up is pressed', () => {
+    const horseTester = new HorseTester();
+
+    horseTester.startHorseJumping();
+
+    // Really 6 up and 6 down;
+    const FRAME_COUNT_FOR_JUMPING = 12;
+    for (let i = 0; i <= FRAME_COUNT_FOR_JUMPING; i++) {
+        expect(horseTester.isHorseJumping()).toBe(true);
+        horseTester.fireTickEvent();
+    }
+    expect(horseTester.isHorseJumping()).toBe(false);
 });
 
 // =============================================================================
