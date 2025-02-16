@@ -274,7 +274,7 @@ export default class Horse {
                 this.isJumpingUpCount = COUNT_FRAMES_TO_GO_UP_OR_DOWN;
             }
 
-            if (this.isJumpingUpCount >= 0) {
+            if (this.isJumpingUpCount > 0) {
                 this.isJumpingUpCount -= 1;
                 this.horseY -= 2;
 
@@ -282,7 +282,7 @@ export default class Horse {
                 if (this.isJumpingUpCount === 0) {
                     this.isJumpingDownCount = COUNT_FRAMES_TO_GO_UP_OR_DOWN;
                 }
-            } else if (this.isJumpingDownCount >= 0) {
+            } else if (this.isJumpingDownCount > 0) {
                 this.isJumpingDownCount -= 1;
                 this.horseY += 2;
 
@@ -301,6 +301,7 @@ export default class Horse {
             this.handleMovingBackground();
             this.handleMovingHorseVerticaly();
             this.handleJumping();
+            this.handleObstacleCollision();
 
             if (this.canHorseMove()) {
                 // Pick a new frame
@@ -318,21 +319,6 @@ export default class Horse {
             // Update rows and columns in sprite sheet
             const column = currentFrame % numColumns;
 
-            const horseBoundingBox = this.getHorseBoundingBox()
-            if (isCollision(
-                horseBoundingBox,
-                this.obstacle.getBoundingBox(),
-            )) {
-                // Bounding Box
-                this.context.fillStyle = 'red';
-                this.context.fillRect(
-                    horseBoundingBox.left,
-                    horseBoundingBox.top,
-                    horseBoundingBox.width,
-                    horseBoundingBox.height,
-                );
-            }
-
             this.context.drawImage(
                 this.image,
                 column * FRAME_WIDTH,
@@ -345,6 +331,23 @@ export default class Horse {
                 FRAME_HEIGHT,
             );
         });
+    }
+
+    private handleObstacleCollision () {
+        const horseBoundingBox = this.getHorseBoundingBox()
+        if (isCollision(
+            horseBoundingBox,
+            this.obstacle.getBoundingBox(),
+        )) {
+            // Bounding Box
+            this.context.fillStyle = 'red';
+            this.context.fillRect(
+                horseBoundingBox.left,
+                horseBoundingBox.top,
+                horseBoundingBox.width,
+                horseBoundingBox.height,
+            );
+        }
     }
 
     private getHorseBoundingBox (): BoundingBox {
