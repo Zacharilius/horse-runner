@@ -6,7 +6,6 @@ export const bootstrap = () => {
     if (rootElement) {
         rootElement.innerHTML = `
             <div class="content">
-                <h1>Horse Runner</h1>
                 <canvas id="main-canvas"></canvas>
             </div>
         `;

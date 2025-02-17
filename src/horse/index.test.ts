@@ -120,6 +120,10 @@ class HorseTester {
     public isHorseJumping (): boolean {
         return this.horse._getHorseState().isJumping;
     }
+
+    public isHorseDying (): boolean {
+        return this.horse._getHorseState().isDying;
+    }
 }
 
 beforeEach(() => {
@@ -366,11 +370,16 @@ test('Horse - should jump when " " key up is pressed', () => {
 // =============================================================================
 // Collision
 
-test('Horse - should outline horse when the hrose collides with an obstacle', () => {
+test('Horse - should die when the horse collides with an obstacle', () => {
     (isCollision as jest.Mock).mockReturnValue(true);
     const horseTester = new HorseTester();
     horseTester.fireTickEvent();
 
+    // Should die and stay dead. 20 is more than the number of ticks.
+    for (let i = 0; i < 20; i++) {
+        horseTester.fireTickEvent();
+        expect(horseTester.isHorseDying()).toBe(true);
+    }
     const context = horseTester.getContext();
     expect(context.fillStyle).toBe('#ff0000');
     expect(context.fillRect).toHaveBeenCalled();
