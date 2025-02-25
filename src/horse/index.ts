@@ -395,24 +395,20 @@ export default class Horse {
     }
 
     private handleObstacleCollision () {
-        const horseBoundingBox = this.getHorseBoundingBox()
-        if (isCollision(
+        const horseBoundingBox = this.getHorseBoundingBox();
+        const isColliding = isCollision(
             horseBoundingBox,
             this.obstacle.getBoundingBox(),
-        )) {
+        );
+        if (isColliding || this.isDying) {
             this.isDying = true;
-            // Bounding Box
-            // This bounding box looks like blood so don't show it when in g mode.
-            const urlParams = new URLSearchParams(window.location.search);
-            if (!urlParams.get('gMode')) {
-                this.context.fillStyle = 'red';
-                this.context.fillRect(
-                    horseBoundingBox.left,
-                    horseBoundingBox.top,
-                    horseBoundingBox.width,
-                    horseBoundingBox.height,
-                );
-            }
+            this.context.fillStyle = 'red';
+            this.context.fillRect(
+                horseBoundingBox.left,
+                horseBoundingBox.top,
+                horseBoundingBox.width,
+                horseBoundingBox.height,
+            );
         }
     }
 
