@@ -6,8 +6,14 @@ export default class ImageTag {
         this.element.src = src;
     }
 
-    static getImage (src: string): HTMLImageElement {
-        return new ImageTag(src).getElement()
+    static async getImage (src: string): Promise<HTMLImageElement> {
+        return new Promise((resolve, reject) => {
+            const imageTag = new ImageTag(src)
+            const element = imageTag.getElement();
+            element.onload = () => resolve(imageTag.getElement());
+            element.onerror = () => reject;
+    
+        })
     }
 
     private getElement (): HTMLImageElement {

@@ -2,9 +2,6 @@ import {
     BackgroundImageOnBottom,
     BackgroundImageOnBottomWithOffset
 } from './index';
-import ImageTag from '../../image'
-
-const MOCK_IMAGE_FILE_NAME = 'image.png';
 
 const MOCK_Y_OFFSET = 100;
 
@@ -14,32 +11,25 @@ const mockCanvas = {
 
 const mockScale = 1;
 
-const stubImageTagGetImage = () => {
-    jest.spyOn(ImageTag, 'getImage').mockImplementation(() => {
-        return {
-            height: 100,
-        } as HTMLImageElement;
-    });
-};
+const mockImage = new Image();
+mockImage.height = 100;
 
 test('BackgroundImageOnBottom - should return Image', () => {
-    const backgroundImage = new BackgroundImageOnBottom(MOCK_IMAGE_FILE_NAME);
+    const backgroundImage = new BackgroundImageOnBottom(mockImage);
     expect(backgroundImage.getElement() instanceof HTMLImageElement).toBe(true);
 });
 
 test('BackgroundImageOnBottomWithOffset - should return Image', () => {
-    const backgroundImage = new BackgroundImageOnBottomWithOffset(MOCK_IMAGE_FILE_NAME, MOCK_Y_OFFSET);
+    const backgroundImage = new BackgroundImageOnBottomWithOffset(mockImage, MOCK_Y_OFFSET);
     expect(backgroundImage.getElement() instanceof HTMLImageElement).toBe(true);
 });
 
 test('BackgroundImageOnBottom - should calculate correctly', () => {
-    const backgroundImage = new BackgroundImageOnBottom(MOCK_IMAGE_FILE_NAME);
-    stubImageTagGetImage();
-    expect(backgroundImage.getCanvasYOffset(mockCanvas, mockScale)).toBe(100);
+    const backgroundImage = new BackgroundImageOnBottom(mockImage);
+    expect(backgroundImage.getCanvasYOffset(mockCanvas, mockScale)).toBe(0);
 });
 
 test('BackgroundImageOnBottomWithOffset - should calculate correctly', () => {
-    const backgroundImage = new BackgroundImageOnBottomWithOffset(MOCK_IMAGE_FILE_NAME, MOCK_Y_OFFSET);
-    stubImageTagGetImage();
+    const backgroundImage = new BackgroundImageOnBottomWithOffset(mockImage, MOCK_Y_OFFSET);
     expect(backgroundImage.getCanvasYOffset(mockCanvas, mockScale)).toBe(-100);
 });

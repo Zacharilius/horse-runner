@@ -39,16 +39,23 @@ interface SpriteLocation {
     row: number;
 }
 
-const horseImages = [
-    ImageTag.getImage(blackGray),
-    ImageTag.getImage(blackWhite),
-    ImageTag.getImage(brownBlonde),
-    ImageTag.getImage(brownTan),
-    ImageTag.getImage(grayWhite),
-    ImageTag.getImage(redBlack),
-    ImageTag.getImage(redBrown),
-    ImageTag.getImage(whiteWhite),
-];
+const horseImages: HTMLImageElement[] = [];
+
+const preloadAssets = async () => {
+    const horseImagesResult = await Promise.all([
+        ImageTag.getImage(blackGray),
+        ImageTag.getImage(blackWhite),
+        ImageTag.getImage(brownBlonde),
+        ImageTag.getImage(brownTan),
+        ImageTag.getImage(grayWhite),
+        ImageTag.getImage(redBlack),
+        ImageTag.getImage(redBrown),
+        ImageTag.getImage(whiteWhite),
+    ]);
+    horseImagesResult.forEach(horseImage => {
+        horseImages.push(horseImage);
+    });
+}
 
 enum Keys {
     ArrowUp = 'ArrowUp',
@@ -81,11 +88,28 @@ export default class Horse {
 
     private isDying = false;
 
+    // Constructor
+    static async create (
+        canvas: HTMLCanvasElement,
+        background: Background,
+        obstacle: Obstacle
+    ): Promise<Horse> {
+        // Only load assets the first time.
+        if (horseImages.length === 0) {
+            await preloadAssets();
+        }
+        return new Horse(canvas, background, obstacle);
+    }
+
+    // Do not construct. use static create() constructor to ensure assets are fully loaded.
     constructor (
         canvas: HTMLCanvasElement,
         background: Background,
         obstacle: Obstacle,
     ) {
+        if (horseImages.length === 0) {
+            throw Error('Loading without preloaded assets');
+        }
         this.canvas = canvas;
         this.context = canvas.getContext('2d') as CanvasRenderingContext2D;
         this.background = background;

@@ -1,10 +1,8 @@
-import ImageTag from '../../image'
-
 export abstract class BackgroundImage {
     protected image: HTMLImageElement;
 
-    constructor (imagePath: string) {
-        this.image = ImageTag.getImage(imagePath);
+    constructor (image: HTMLImageElement) {
+        this.image = image;
     }
 
     public getElement (): HTMLImageElement {
@@ -21,8 +19,8 @@ export class BackgroundImageOnBottom extends BackgroundImage{
 }
 
 export class BackgroundImageOnBottomWithOffset extends BackgroundImageOnBottom{
-    constructor (imagePath: string, public yOffset: number) {
-        super(imagePath);
+    constructor (image: HTMLImageElement, public yOffset: number) {
+        super(image);
     }
     public getCanvasYOffset (canvas: HTMLCanvasElement, scale: number) {
         return super.getCanvasYOffset(canvas, scale) - this.yOffset;

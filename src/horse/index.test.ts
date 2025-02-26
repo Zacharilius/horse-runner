@@ -3,6 +3,7 @@ import Background from '../background';
 import { isCollision } from '../bounding-box';
 import Obstacle from '../obstacle';
 import Sound from '../sound';
+import ImageTag from '../image'
 
 const SOUND_INDEX_FOR_NEIGHING = 2;
 
@@ -10,6 +11,7 @@ jest.mock('../background');
 jest.mock('../bounding-box');
 jest.mock('../obstacle');
 jest.mock('../sound');
+jest.mock('../image');
 
 class HorseTester {
     private horse: Horse;
@@ -18,24 +20,41 @@ class HorseTester {
     private tickEventCallback: EventListener;
     private context: CanvasRenderingContext2D;
 
-    constructor () {
+    static async create (): Promise<HorseTester> {
         const canvas = getCanvas();
         jest.spyOn(canvas, 'addEventListener');
         const addEventListenerSpy = jest.spyOn(window, 'addEventListener');
 
-        this.context = canvas.getContext('2d') as CanvasRenderingContext2D;
-        jest.spyOn(this.context, 'drawImage');
+        const context = canvas.getContext('2d') as CanvasRenderingContext2D;
+        jest.spyOn(context, 'drawImage');
+
+        jest.spyOn(ImageTag, 'getImage').mockReturnValue(Promise.resolve(new Image(0)))
 
         const background = new Background(canvas)
-        this.horse = new Horse(
+        const horse = await Horse.create(
             canvas,
             background,
             new Obstacle(canvas, background),
         );
+        return new HorseTester(canvas, context, horse, addEventListenerSpy)
+    }
+
+    constructor (
+        canvas: jest.Mocked<HTMLCanvasElement>,
+        context: CanvasRenderingContext2D,
+        horse: Horse,
+        addEventListenerSpy: jest.SpyInstance
+    ) {
+        this.context = context;
+        this.horse = horse;
         
         this.keyDownEventHandler = addEventListenerSpy.mock.calls[0][1] as EventListener;
         this.keyUpEventHandler = addEventListenerSpy.mock.calls[1][1] as EventListener;
         this.tickEventCallback = canvas.addEventListener.mock.calls[0][1] as EventListener
+    }
+
+    public getHorse (): Horse {
+        return this.horse;
     }
 
     public getContext (): CanvasRenderingContext2D {
@@ -134,21 +153,12 @@ const getCanvas = (): jest.Mocked<HTMLCanvasElement> => {
     return document.createElement('canvas') as jest.Mocked<HTMLCanvasElement>;;
 }
 
-const getHorse = (canvas: HTMLCanvasElement): Horse => {
-    const background = new Background(canvas)
-    const horse = new Horse(
-        canvas,
-        background,
-        new Obstacle(canvas, background),
-    );
-    return horse;
-}
-
 // =============================================================================
 // Init
 
-test('Horse - should initialize', () => {
-    expect(getHorse(getCanvas())).toBeInstanceOf(Horse);
+test('Horse - should initialize', async () => {
+    const horseTester = await HorseTester.create();
+    expect(horseTester.getHorse()).toBeInstanceOf(Horse);
 });
 
 // =============================================================================
@@ -157,8 +167,8 @@ test('Horse - should initialize', () => {
 // -----------------------------------------------------------------------------
 // Movement
 
-test('Horse - should move left when left arrow pressed', () => {
-    const horseTester = new HorseTester();
+test('Horse - should move left when left arrow pressed', async () => {
+    const horseTester = await HorseTester.create();
     horseTester.startHorseWalkingLeft();
     horseTester.fireTickEvent();
     expect(horseTester.getHorseDirection()).toBe(HorseMovementDirections.left);
@@ -177,8 +187,8 @@ test('Horse - should move left when left arrow pressed', () => {
     );
 });
 
-test('Horse - should run left when left arrow and r are pressed', () => {
-    const horseTester = new HorseTester();
+test('Horse - should run left when left arrow and r are pressed', async () => {
+    const horseTester = await HorseTester.create();
     horseTester.startHorseWalkingLeft();
     horseTester.startHorseRunning();
     horseTester.fireTickEvent();
@@ -198,8 +208,8 @@ test('Horse - should run left when left arrow and r are pressed', () => {
     );
 });
 
-test('Horse - should move right when right arrow pressed', () => {
-    const horseTester = new HorseTester();
+test('Horse - should move right when right arrow pressed', async () => {
+    const horseTester = await HorseTester.create();
     horseTester.startHorseWalkingRight();
     horseTester.fireTickEvent();
     expect(horseTester.getHorseDirection()).toBe(HorseMovementDirections.right);
@@ -218,8 +228,8 @@ test('Horse - should move right when right arrow pressed', () => {
     );
 });
 
-test('Horse - should move up when up arrow pressed', () => {
-    const horseTester = new HorseTester();
+test('Horse - should move up when up arrow pressed', async () => {
+    const horseTester = await HorseTester.create();
     horseTester.startHorseWalkingUp();
     horseTester.fireTickEvent();
     expect(horseTester.getHorseDirection()).toBe(HorseMovementDirections.up);
@@ -238,8 +248,8 @@ test('Horse - should move up when up arrow pressed', () => {
     );
 });
 
-test('Horse - should move down when down arrow pressed', () => {
-    const horseTester = new HorseTester();
+test('Horse - should move down when down arrow pressed', async () => {
+    const horseTester = await HorseTester.create();
     horseTester.startHorseWalkingDown();
     horseTester.fireTickEvent();
     expect(horseTester.getHorseDirection()).toBe(HorseMovementDirections.down);
@@ -258,8 +268,8 @@ test('Horse - should move down when down arrow pressed', () => {
     );
 });
 
-test('Horse - should move down when horse is Running arrow pressed', () => {
-    const horseTester = new HorseTester();
+test('Horse - should move down when horse is Running arrow pressed', async () => {
+    const horseTester = await HorseTester.create();
     horseTester.startHorseWalkingDown();
     horseTester.startHorseRunning();
     horseTester.fireTickEvent();
@@ -279,8 +289,8 @@ test('Horse - should move down when horse is Running arrow pressed', () => {
     );
 });
 
-test('Horse - should wrap around when lots of ticks are called', () => {
-    const horseTester = new HorseTester();
+test('Horse - should wrap around when lots of ticks are called', async () => {
+    const horseTester = await HorseTester.create();
     horseTester.startHorseWalkingLeft();
     // 29 is enough ticks for it to reset frames several times.
     const TICK_COUNT = 20;
@@ -295,16 +305,16 @@ test('Horse - should wrap around when lots of ticks are called', () => {
 // -----------------------------------------------------------------------------
 // Switch horse
 
-test('Horse - should switch horse image when "s" is pressed', () => {
-    const horseTester = new HorseTester();
+test('Horse - should switch horse image when "s" is pressed', async () => {
+    const horseTester = await HorseTester.create();
 
     expect(horseTester.getHorseIndex()).toBe(0);
     horseTester.changeHorseImage();
     expect(horseTester.getHorseIndex()).toBe(1);
 });
 
-test('Horse - should switch back to original horse  image when "s" is pressed', () => {
-    const horseTester = new HorseTester();
+test('Horse - should switch back to original horse  image when "s" is pressed', async () => {
+    const horseTester = await HorseTester.create();
 
     const HORSE_SPRITE_COUNT = 7;
     for (let i = 0; i <= HORSE_SPRITE_COUNT; i++) {
@@ -316,8 +326,8 @@ test('Horse - should switch back to original horse  image when "s" is pressed', 
 // -----------------------------------------------------------------------------
 // Neigh
 
-test('Horse - should play neighing sound when "n" key is pressed', () => {
-   const horseTester = new HorseTester();
+test('Horse - should play neighing sound when "n" key is pressed', async () => {
+    const horseTester = await HorseTester.create();
 
     // Creates 3 sounds.
     expect(Sound).toHaveBeenCalledTimes(3);
@@ -330,8 +340,8 @@ test('Horse - should play neighing sound when "n" key is pressed', () => {
 // -----------------------------------------------------------------------------
 // Running
 
-test('Horse - should start and stop horse running when pressing and unpressing "r"', () => {
-    const horseTester = new HorseTester();
+test('Horse - should start and stop horse running when pressing and unpressing "r"', async () => {
+    const horseTester = await HorseTester.create();
 
     expect(horseTester.isHorseRunning()).toBe(false);
     horseTester.startHorseRunning();
@@ -340,8 +350,8 @@ test('Horse - should start and stop horse running when pressing and unpressing "
     expect(horseTester.isHorseRunning()).toBe(false);
 });
 
-test('Horse - should start and stop moving when "ArrowUp" key up is pressed', () => {
-    const horseTester = new HorseTester();
+test('Horse - should start and stop moving when "ArrowUp" key up is pressed', async () => {
+    const horseTester = await HorseTester.create();
 
     expect(horseTester.isHorseWalking()).toBe(false);
     horseTester.startHorseWalkingLeft()
@@ -353,8 +363,8 @@ test('Horse - should start and stop moving when "ArrowUp" key up is pressed', ()
 // -----------------------------------------------------------------------------
 // Jumping
 
-test('Horse - should jump when " " key up is pressed', () => {
-    const horseTester = new HorseTester();
+test('Horse - should jump when " " key up is pressed', async () => {
+    const horseTester = await HorseTester.create();
 
     horseTester.startHorseJumping();
 
@@ -370,9 +380,9 @@ test('Horse - should jump when " " key up is pressed', () => {
 // =============================================================================
 // Collision
 
-test('Horse - should die when the horse collides with an obstacle', () => {
+test('Horse - should die when the horse collides with an obstacle', async () => {
     (isCollision as jest.Mock).mockReturnValue(true);
-    const horseTester = new HorseTester();
+    const horseTester = await HorseTester.create();
     horseTester.fireTickEvent();
 
     // Should die and stay dead. 20 is more than the number of ticks.

@@ -1,4 +1,4 @@
-
+import ImageTag from '../image'
 import {
     BackgroundImage,
     BackgroundImageOnBottom,
@@ -13,6 +13,16 @@ enum Direction {
     Right = 1,
 };
 
+let trailImage: HTMLImageElement;
+let hillsImage: HTMLImageElement;
+let treesImage: HTMLImageElement;
+
+const preloadAssets = async () => {
+    hillsImage = await ImageTag.getImage(hills);
+    trailImage = await ImageTag.getImage(trail);
+    treesImage = await ImageTag.getImage(trees);
+}
+
 export default class Background {
     private canvas: HTMLCanvasElement;
     private context: CanvasRenderingContext2D;
@@ -22,13 +32,26 @@ export default class Background {
     private speed = 0;
     private direction: Direction = Direction.Left;
 
+    // Constructor
+    static async create (canvas: HTMLCanvasElement): Promise<Background> {
+        if (!trailImage || !hillsImage || !treesImage) {
+            await preloadAssets();
+        }
+
+        return new Background(canvas);
+    }
+
+    // Do not construct. use static create() constructor to ensure assets are fully loaded.
     constructor (canvas: HTMLCanvasElement) {
+        if (!trailImage || !hillsImage || !treesImage) {
+            throw Error('Loading without preloaded assets');
+        }
         this.canvas = canvas;
         this.context = canvas.getContext('2d') as CanvasRenderingContext2D;
         this.images = [
-            new BackgroundImageOnBottom(trail),
-            new BackgroundImageOnBottomWithOffset(hills, 45),
-            new BackgroundImageOnBottomWithOffset(trees, 55),
+            new BackgroundImageOnBottom(trailImage),
+            new BackgroundImageOnBottomWithOffset(hillsImage, 45),
+            new BackgroundImageOnBottomWithOffset(treesImage, 55),
         ];
         this.setupEventListener();   
     }

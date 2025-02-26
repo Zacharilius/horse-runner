@@ -1,6 +1,6 @@
 import { init } from './game';
 
-export const bootstrap = () => {
+export const bootstrap = async () => {
     const rootElement = document.querySelector('#root');
 
     if (rootElement) {
@@ -10,7 +10,7 @@ export const bootstrap = () => {
             </div>
         `;
 
-        init(document.getElementById('main-canvas') as HTMLCanvasElement);
+        await init(document.getElementById('main-canvas') as HTMLCanvasElement);
     } else {
         throw Error('Error during initialization. Could not locate root element.');
     }

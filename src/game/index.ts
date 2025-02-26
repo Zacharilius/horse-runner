@@ -8,15 +8,21 @@ class Game {
     private canvas: HTMLCanvasElement;
     private context: CanvasRenderingContext2D;
 
+    // Constructor
+    static async create (
+        canvas: HTMLCanvasElement,
+    ): Promise<Game> {
+        const background = await Background.create(canvas)
+        const obstacle = new Obstacle(canvas, background);
+        Horse.create(canvas, background, obstacle);
+
+        return new Game(canvas);
+    }
+
+    // Do not construct. use static create() constructor to ensure assets are fully loaded.
     constructor (canvas: HTMLCanvasElement) {
         this.canvas = canvas;
         this.context = this.canvas.getContext('2d') as CanvasRenderingContext2D;
-
-        // Loads all the images and sounds
-        const background = new Background(this.canvas);
-        const obstacle = new Obstacle(this.canvas, background);
-        new Horse(this.canvas, background, obstacle);
-
         this.initTicker();
     }
 
@@ -45,6 +51,6 @@ class Game {
     }
 }
 
-export const init = (canvas: HTMLCanvasElement) => {
-    new Game(canvas);
+export const init = async (canvas: HTMLCanvasElement) => {
+    await Game.create(canvas);
 };
