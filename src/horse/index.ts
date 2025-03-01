@@ -192,7 +192,7 @@ export default class Horse {
     }
 
     private handleMovementSounds () {
-        if (this.canHorseMove() && (this.isHorseRunning || this.isMovementKeyDown())) {
+        if (!this.isDying && this.canHorseMove() && (this.isHorseRunning || this.isMovementKeyDown())) {
             // Handling starting moving sounds;
             if (this.isMovementKeyDown() && this.isHorseRunning) {
                 // Only play 1 moving sound at a time;
