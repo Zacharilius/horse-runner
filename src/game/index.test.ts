@@ -19,6 +19,8 @@ jest.mock('../horse', () => {
     };
 });
 
+jest.mock('../modal');
+
 test('Game - should init', async () => {
     const canvas = document.createElement('canvas');
     await init(canvas);

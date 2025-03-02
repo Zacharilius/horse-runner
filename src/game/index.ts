@@ -1,5 +1,6 @@
 import Background from "../background";
 import Horse from "../horse";
+import Modal from "../modal";
 import Obstacle from "../obstacle";
 
 const FRAME_RATE = 60;
@@ -12,6 +13,8 @@ class Game {
     static async create (
         canvas: HTMLCanvasElement,
     ): Promise<Game> {
+        const modal = new Modal();
+        modal.show();
         const background = await Background.create(canvas)
         const obstacle = new Obstacle(canvas, background);
         Horse.create(canvas, background, obstacle);
