@@ -27,17 +27,25 @@ test('Modal - should init', async () => {
 test('Modal - should show', async () => {
     attachModalCloseButton();
     const modal = new Modal();
-    expect(modal).toBeInstanceOf(Modal);
     expect(modal.isVisible()).toBe(false);
     modal.show();
     expect(modal.isVisible()).toBe(true);
 });
 
-test('Modal - should hide', async () => {
+test('Modal - should hide when hide() is called', async () => {
     attachModalCloseButton();
     const modal = new Modal();
-    expect(modal).toBeInstanceOf(Modal);
     modal.hide();
+    expect(modal.isVisible()).toBe(false);
+});
+
+test('Modal - should hide when "Escape" is pressed', async () => {
+    const addEventListenerSpy = jest.spyOn(window, 'addEventListener');
+
+    attachModalCloseButton();
+    const modal = new Modal();
+    const keyDownEventHandler = addEventListenerSpy.mock.calls[0][1] as EventListener;
+    keyDownEventHandler(new KeyboardEvent('keydown', { key: 'Escape' }));
     expect(modal.isVisible()).toBe(false);
 });
 

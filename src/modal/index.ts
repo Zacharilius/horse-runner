@@ -7,7 +7,12 @@ export default class Modal {
         this.element = document.querySelector('#modal') as HTMLElement;
         this.element.querySelector('.close-modal-button')?.addEventListener('click', () => {
             this.hide();
-        })
+        });
+        window.addEventListener('keydown', (event) => {
+            if (event.key === 'Escape') {
+                this.hide();
+            }
+        });
     }
 
     public show (): Modal {
