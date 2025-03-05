@@ -333,7 +333,7 @@ export default class Horse {
     }
 
     private handleJumping () {
-        const COUNT_FRAMES_TO_GO_UP_OR_DOWN = 6;
+        const COUNT_FRAMES_TO_GO_UP_OR_DOWN = 12;
         if (this.isJumping) {
             const isStartOfJump = (
                 this.isJumpingUpCount == 0 &&

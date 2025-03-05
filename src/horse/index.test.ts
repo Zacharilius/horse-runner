@@ -368,8 +368,8 @@ test('Horse - should jump when " " key up is pressed', async () => {
 
     horseTester.startHorseJumping();
 
-    // Really 6 up and 6 down;
-    const FRAME_COUNT_FOR_JUMPING = 12;
+    // Really 12 up and 12 down;
+    const FRAME_COUNT_FOR_JUMPING = 24;
     for (let i = 0; i < FRAME_COUNT_FOR_JUMPING; i++) {
         expect(horseTester.isHorseJumping()).toBe(true);
         horseTester.fireTickEvent();
