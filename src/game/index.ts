@@ -8,25 +8,37 @@ const FRAME_RATE = 60;
 class Game {
     private canvas: HTMLCanvasElement;
     private context: CanvasRenderingContext2D;
+    private background: Background;
+    private horse: Horse;
 
     // Constructor
     static async create (
         canvas: HTMLCanvasElement,
     ): Promise<Game> {
-        const modal = new Modal();
-        modal.show();
         const background = await Background.create(canvas)
         const obstacle = new Obstacle(canvas, background);
-        Horse.create(canvas, background, obstacle);
+        const horse = await Horse.create(canvas, background, obstacle);
+        const game = new Game(canvas, background, horse);
 
-        return new Game(canvas);
+        const modal = new Modal(() => game.startGame());
+        modal.show();
+
+        return game
     }
 
     // Do not construct. use static create() constructor to ensure assets are fully loaded.
-    constructor (canvas: HTMLCanvasElement) {
+    constructor (canvas: HTMLCanvasElement, background: Background, horse: Horse) {
         this.canvas = canvas;
         this.context = this.canvas.getContext('2d') as CanvasRenderingContext2D;
+        this.background = background;
+        this.horse = horse;
         this.initTicker();
+    }
+
+    public startGame () {
+        this.background.startMovingLeft();
+        this.horse.start();
+
     }
 
     private initTicker (lastFrame = performance.now()) {

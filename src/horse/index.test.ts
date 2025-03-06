@@ -36,6 +36,7 @@ class HorseTester {
             background,
             new Obstacle(canvas, background),
         );
+        horse.start();
         return new HorseTester(canvas, context, horse, addEventListenerSpy)
     }
 
@@ -79,20 +80,12 @@ class HorseTester {
         this.keyDownEventHandler(new KeyboardEvent('keydown', { key: 'ArrowUp' }));    
     }
 
-    public startHorseWalkingRight () {
-        this.keyDownEventHandler(new KeyboardEvent('keydown', { key: 'ArrowRight' }));            
+    public stopHorseWalkingUp () {
+        this.keyUpEventHandler(new KeyboardEvent('keyup', { key: 'ArrowUp' }));
     }
 
     public startHorseWalkingDown () {
         this.keyDownEventHandler(new KeyboardEvent('keydown', { key: 'ArrowDown' }));
-    }
-
-    public startHorseWalkingLeft () {
-        this.keyDownEventHandler(new KeyboardEvent('keydown', { key: 'ArrowLeft' }));
-    }
-
-    public stopHorseWalkingLeft () {
-        this.keyUpEventHandler(new KeyboardEvent('keyup', { key: 'ArrowLeft' }));
     }
 
     public startHorseRunning () {
@@ -120,7 +113,7 @@ class HorseTester {
     // =========================================================================
     // State
 
-    public isHorseWalking (): boolean {
+    public isHorseMovingVertically (): boolean {
         return this.horse._getHorseState().isHorseMoving;
     }
 
@@ -167,9 +160,8 @@ test('Horse - should initialize', async () => {
 // -----------------------------------------------------------------------------
 // Movement
 
-test('Horse - should move left when left arrow pressed', async () => {
+test('Horse - should move left on init', async () => {
     const horseTester = await HorseTester.create();
-    horseTester.startHorseWalkingLeft();
     horseTester.fireTickEvent();
     expect(horseTester.getHorseDirection()).toBe(HorseMovementDirections.left);
     const context = horseTester.getContext();
@@ -187,9 +179,8 @@ test('Horse - should move left when left arrow pressed', async () => {
     );
 });
 
-test('Horse - should run left when left arrow and r are pressed', async () => {
+test('Horse - should run left when r is pressed', async () => {
     const horseTester = await HorseTester.create();
-    horseTester.startHorseWalkingLeft();
     horseTester.startHorseRunning();
     horseTester.fireTickEvent();
     expect(horseTester.getHorseDirection()).toBe(HorseMovementDirections.left);
@@ -199,26 +190,6 @@ test('Horse - should run left when left arrow and r are pressed', async () => {
         expect.any(HTMLImageElement),
         64,
         576,
-        64,
-        48,
-        118,
-        72.5,
-        64,
-        48
-    );
-});
-
-test('Horse - should move right when right arrow pressed', async () => {
-    const horseTester = await HorseTester.create();
-    horseTester.startHorseWalkingRight();
-    horseTester.fireTickEvent();
-    expect(horseTester.getHorseDirection()).toBe(HorseMovementDirections.right);
-    const context = horseTester.getContext();
-    expect(context.drawImage).toHaveBeenCalled();
-    expect(context.drawImage).toHaveBeenCalledWith(
-        expect.any(HTMLImageElement),
-        64,
-        432,
         64,
         48,
         118,
@@ -291,7 +262,6 @@ test('Horse - should move down when horse is Running arrow pressed', async () =>
 
 test('Horse - should wrap around when lots of ticks are called', async () => {
     const horseTester = await HorseTester.create();
-    horseTester.startHorseWalkingLeft();
     // 29 is enough ticks for it to reset frames several times.
     const TICK_COUNT = 20;
     for (let i = 0; i < TICK_COUNT; i ++) {
@@ -353,11 +323,11 @@ test('Horse - should start and stop horse running when pressing and unpressing "
 test('Horse - should start and stop moving when "ArrowUp" key up is pressed', async () => {
     const horseTester = await HorseTester.create();
 
-    expect(horseTester.isHorseWalking()).toBe(false);
-    horseTester.startHorseWalkingLeft()
-    expect(horseTester.isHorseWalking()).toBe(true);
-    horseTester.stopHorseWalkingLeft();
-    expect(horseTester.isHorseWalking()).toBe(false);
+    expect(horseTester.isHorseMovingVertically()).toBe(false);
+    horseTester.startHorseWalkingUp()
+    expect(horseTester.isHorseMovingVertically()).toBe(true);
+    horseTester.stopHorseWalkingUp();
+    expect(horseTester.isHorseMovingVertically()).toBe(false);
 });
 
 // -----------------------------------------------------------------------------

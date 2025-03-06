@@ -19,12 +19,7 @@ export const bootstrap = async () => {
                                     <td>&uarr;</td>
                                     <td></td>
                                 <tr>
-                            <tr>
-                                    <td>&larr;</td>
-                                    <td></td>
-                                    <td>&rarr;</td>
                                 <tr>
-                            <tr>
                                     <td></td>
                                     <td>&darr;</td>
                                     <td></td>

@@ -30,9 +30,6 @@ export enum HorseMovementDirections {
     up = 11,
 }
 
-const WALKING_SPEED = 15;
-const RUNNING_SPEED = 45;
-
 interface SpriteLocation {
     numColumns: number;
     numRows: number;
@@ -60,15 +57,15 @@ const preloadAssets = async () => {
 enum Keys {
     ArrowUp = 'ArrowUp',
     ArrowDown = 'ArrowDown',
-    ArrowLeft = 'ArrowLeft',
-    ArrowRight = 'ArrowRight',
 };
 
 export default class Horse {
     private canvas: HTMLCanvasElement;
     private context: CanvasRenderingContext2D;
     private background: Background;
-    private obstacle: Obstacle
+    private obstacle: Obstacle;
+
+    private isStarted = false;
 
     private image: HTMLImageElement;
     private imageIndex = 0;
@@ -80,6 +77,8 @@ export default class Horse {
     private isJumping: boolean;
     private isJumpingUpCount = 0;
     private isJumpingDownCount = 0;
+
+    private isWalking = false;
 
     // Sounds
     private walkingSound: Sound;
@@ -131,6 +130,11 @@ export default class Horse {
         this.setupEventListener();   
     }
 
+    public start () {
+        this.isStarted = true;
+        this.isWalking = true;
+    }
+
     private setupKeyPress () {
         window.addEventListener('keydown', (event) => {
             if (this.isDying) {
@@ -140,10 +144,6 @@ export default class Horse {
                 this.startHorseMoving(event.key);
             } else if (event.key === Keys.ArrowDown) {
                 this.startHorseMoving(event.key);
-            } else if (event.key === Keys.ArrowLeft) {
-                this.startHorseMoving(event.key);
-            } else if (event.key === Keys.ArrowRight) {
-                this.startHorseMoving(event.key);
             } else if (event.key === 's') {
                 const imageIndex = (this.imageIndex + 1) % horseImages.length
                 this.setHorse(imageIndex)
@@ -151,6 +151,7 @@ export default class Horse {
                 this.neighingSound.play();
             } else if (event.key === 'r') {
                 this.isHorseRunning = true;
+                this.background.startRunning();
             } else if (event.key === ' ') {
                 if (!this.isJumping) {
                     this.isJumping = true;
@@ -166,6 +167,7 @@ export default class Horse {
                 this.stopHorseMoving(event.key as Keys);
             } else if (event.key === 'r') {
                 this.isHorseRunning = false;
+                this.background.stopRunning();
             }
         });
     }
@@ -175,14 +177,9 @@ export default class Horse {
 
     private stopHorseMoving (key: Keys) {
         this.movementKeysPressed.delete(key);
-        // If no movement keys are pressed
-        // Then stop running
-        if (this.movementKeysPressed.size == 0) {
-            this.isHorseRunning = false;
-        }
     }
 
-    private isMovementKeyDown (): boolean {
+    private isVerticalMovementKeyDown (): boolean {
         return this.movementKeysPressed.size > 0;
     }
 
@@ -192,14 +189,18 @@ export default class Horse {
     }
 
     private handleMovementSounds () {
-        if (!this.isDying && this.canHorseMove() && (this.isHorseRunning || this.isMovementKeyDown())) {
-            // Handling starting moving sounds;
-            if (this.isMovementKeyDown() && this.isHorseRunning) {
+        if (!this.isStarted) {
+            // Do not start playing sounds until the start modal has closed.
+            return;
+        }
+        if (!this.isDying) {
+            if (this.isHorseRunning) {
                 // Only play 1 moving sound at a time;
                 this.walkingSound.pause();
                 this.runningSound.play();
-            } else if (this.isMovementKeyDown()) {
+            } else {
                 this.walkingSound.play();
+                this.runningSound.pause();
             }
         } else {
             this.runningSound.pause();
@@ -208,22 +209,13 @@ export default class Horse {
     }
 
     private handleMovingBackground () {
-        const speed = this.getMovingSpeed();
         if (this.isDying) {
-            this.background.setMovingStop();
-        } else {
-            if (this.movementKeysPressed.has(Keys.ArrowLeft)) {
-                this.background.startMovingLeft(speed);
-            } else if (this.movementKeysPressed.has(Keys.ArrowRight)) {
-                this.background.startMovingRight(speed);
-            } else {
-                this.background.setMovingStop();
-            }
+            this.background.stop();
         }
     }
 
     private handleMovingHorseVerticaly () {
-        if (this.isMovementKeyDown() || this.isHorseRunning) {
+        if (this.isVerticalMovementKeyDown()) {
             if (this.canHorseMoveUp()) {
                 this.horseY -= 1;
             } else if (this.canHorseMoveDown()) {
@@ -240,13 +232,6 @@ export default class Horse {
         return this.movementKeysPressed.has(Keys.ArrowDown) && (this.horseY + 1) < BOTTOM_CANVAS_PATH;
     }
 
-    private isMovingHorizontally (): boolean {
-        return (
-            this.movementKeysPressed.has(Keys.ArrowLeft) ||
-            this.movementKeysPressed.has(Keys.ArrowRight)
-        );
-    }
-
     private isMovingVertically (): boolean {
         return (
             this.movementKeysPressed.has(Keys.ArrowUp) ||
@@ -254,39 +239,33 @@ export default class Horse {
         );
     }
 
-    private getMovingSpeed (): number {
-        if (this.isMovementKeyDown() && this.isHorseRunning) {
-            return RUNNING_SPEED;
-        } else if (this.isMovementKeyDown()) {
-            return WALKING_SPEED;
-        } else {
-            return 0;
-        }
-    }
-
     private getHorseSpriteSheetLocation (): SpriteLocation {
         const horseDirection = this.getHorseDirection();
 
         if (this.isDying) {
+            // Dying sprite sheet
             return {
                 numColumns: 6,
                 numRows: 1,
                 row: horseDirection + 12,
             }
-        } else if (this.isMovementKeyDown()) {
+        } else if (this.isWalking) {
             if (this.isHorseRunning) {
+                // Running sprite sheet
                 return {
                     numColumns: 6,
                     numRows: 1,
                     row: horseDirection + 4,
                 }
             }
+            // Walking sprite sheet
             return {
                 numColumns: 8,
                 numRows: 1,
                 row: horseDirection,
             }
         } else {
+            // Standing sprite sheet
             return {
                 numColumns: 3,
                 numRows: 1,
@@ -296,14 +275,7 @@ export default class Horse {
     }
 
     private getHorseDirection (): HorseMovementDirections {
-        // If multiple keys are down, use the horizontal image.
-        if (this.isMovingHorizontally()) {
-            if (this.movementKeysPressed.has(Keys.ArrowLeft)) {
-                return HorseMovementDirections.left
-            } else {
-                return HorseMovementDirections.right;
-            }
-        } else if (this.isMovingVertically()) {
+       if (this.isMovingVertically()) {
             if (this.movementKeysPressed.has(Keys.ArrowUp)) {
                 return HorseMovementDirections.up
             } else {
@@ -313,23 +285,6 @@ export default class Horse {
         // TODO: This causes the horse to always look left after the key is
         // unpressed.
         return HorseMovementDirections.left
-    }
-
-    private canHorseMove (): boolean {
-        if (this.isMovementKeyDown()) {
-            // Horse must stay on the path. Do not let it run in place
-            if (this.isMovingVertically()) {
-                if (this.canHorseMoveUp() || this.canHorseMoveDown()) {
-                    return true;
-                } else {
-                    return false;
-                }
-            } else {
-                // Can always move horizontally if isHorseMoving.
-                return true;
-            }
-        }
-        return false;
     }
 
     private handleJumping () {
@@ -388,7 +343,7 @@ export default class Horse {
                     }
                 }
 
-            } else if (this.isMovementKeyDown()) {
+            } else if (this.isWalking) {
                 // Pick a new frame
                 currentFrame++;
             }
@@ -467,7 +422,7 @@ export default class Horse {
             image: this.image,
             imageIndex: this.imageIndex,
             horseDirection: this.getHorseDirection(),
-            isHorseMoving: this.isMovementKeyDown(),
+            isHorseMoving: this.isVerticalMovementKeyDown(),
             isHorseRunning: this.isHorseRunning,
             horseY: this.horseY,
             isJumping: this.isJumping,
