@@ -17,8 +17,8 @@ let trailImage: HTMLImageElement;
 let hillsImage: HTMLImageElement;
 let treesImage: HTMLImageElement;
 
-const WALKING_SPEED = 15;
-const RUNNING_SPEED = 45;
+export const WALKING_SPEED = 15;
+export const RUNNING_SPEED = 45;
 
 const preloadAssets = async () => {
     hillsImage = await ImageTag.getImage(hills);
@@ -59,7 +59,7 @@ export default class Background {
         this.setupEventListener();   
     }
 
-    public startMovingLeft () {
+    public start () {
         this.direction = Direction.Left;
         this.speed = WALKING_SPEED;
     }

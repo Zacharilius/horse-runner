@@ -125,14 +125,15 @@ export default class Horse {
         this.walkingSound = new Sound(horseWalking);
         this.runningSound = new Sound(horseGalloping);
         this.neighingSound = new Sound(horseNeighing);
-
-        this.setupKeyPress();
-        this.setupEventListener();   
     }
 
     public start () {
-        this.isStarted = true;
-        this.isWalking = true;
+        if (!this.isStarted) {
+            this.isStarted = true;
+            this.isWalking = true;
+            this.setupKeyPress();
+            this.setupEventListener();   
+        }
     }
 
     private setupKeyPress () {
@@ -282,8 +283,6 @@ export default class Horse {
                 return HorseMovementDirections.down;
             }
         }
-        // TODO: This causes the horse to always look left after the key is
-        // unpressed.
         return HorseMovementDirections.left
     }
 

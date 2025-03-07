@@ -1,9 +1,7 @@
-import Background from './index';
+import Background, { RUNNING_SPEED, WALKING_SPEED } from './index';
 import ImageTag from '../image'
 
 jest.mock('../image');
-
-const WALKING_SPEED = 15;
 
 const createBackground = async (canvas: HTMLCanvasElement = document.createElement('canvas')): Promise<Background> => {
     return Background.create(canvas);
@@ -13,11 +11,33 @@ beforeAll(() => {
     jest.spyOn(ImageTag, 'getImage').mockReturnValue(Promise.resolve(new Image(0)))
 });
 
-test('Background - startMovingLeft should set speed to 0 and direction to left', async () => {
+test('Background - start should throw error if', async () => {
+    expect(() => new Background(document.createElement('canvas'))).toThrow();
+});
+
+test('Background - start should set speed to walking and direction to left', async () => {
     const background = await createBackground();
-    background.startMovingLeft();
+    background.start();
     expect(background.getSpeed()).toBe(WALKING_SPEED);
     expect(background.getDirection()).toBe(-1);
+});
+
+test('Background - startRunning and stopRunning', async () => {
+    const background = await createBackground();
+    background.start();
+    expect(background.getSpeed()).toBe(WALKING_SPEED);
+    background.startRunning();
+    expect(background.getSpeed()).toBe(RUNNING_SPEED);
+    background.stopRunning();
+    expect(background.getSpeed()).toBe(WALKING_SPEED);
+    expect(background.getDirection()).toBe(-1);
+});
+
+test('Background - stop', async () => {
+    const background = await createBackground();
+    background.start();
+    background.stop();
+    expect(background.getSpeed()).toBe(0);
 });
 
 test('Background - tick event listener', async () => {

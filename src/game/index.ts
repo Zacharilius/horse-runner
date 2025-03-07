@@ -5,7 +5,7 @@ import Obstacle from "../obstacle";
 
 const FRAME_RATE = 60;
 
-class Game {
+export class Game {
     private canvas: HTMLCanvasElement;
     private context: CanvasRenderingContext2D;
     private background: Background;
@@ -36,9 +36,8 @@ class Game {
     }
 
     public startGame () {
-        this.background.startMovingLeft();
+        this.background.start();
         this.horse.start();
-
     }
 
     private initTicker (lastFrame = performance.now()) {
@@ -66,6 +65,6 @@ class Game {
     }
 }
 
-export const init = async (canvas: HTMLCanvasElement) => {
-    await Game.create(canvas);
+export const init = async (canvas: HTMLCanvasElement): Promise<Game> => {
+    return await Game.create(canvas);
 };
