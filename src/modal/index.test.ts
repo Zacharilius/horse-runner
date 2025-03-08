@@ -1,19 +1,17 @@
 import Modal from './index';
 
-const attachModalCloseButton = () => {
+const attachModal = () => {
     const body = document.querySelector('body');
     if (body) {
         body.innerHTML = `
             <div class="modal-overlay hidden" id="modal">
-                <button class="close-modal-button">X</button>
             </div>
         `;
     }
+}
 
-    const button = document.querySelector('.close-modal-button') as HTMLElement;
-    jest.spyOn(button, 'addEventListener');
-
-    return button
+const initModal = (): Modal => {
+    return new Modal('title', 'body', mockStartGame);
 }
 
 let mockStartGame: () => void;
@@ -23,25 +21,23 @@ beforeEach(() => {
 });
 
 test('Modal - should init', async () => {
-    const button = attachModalCloseButton();
-    const modal = new Modal(mockStartGame);
+    attachModal();
+    const modal = initModal();
     expect(modal).toBeInstanceOf(Modal);
-
-    expect(button.addEventListener).toHaveBeenCalledTimes(1);
     expect(mockStartGame).toHaveBeenCalledTimes(0);
 });
 
 test('Modal - should show', async () => {
-    attachModalCloseButton();
-    const modal = new Modal(mockStartGame);
+    attachModal();
+    const modal = initModal();
     expect(modal.isVisible()).toBe(false);
     modal.show();
     expect(modal.isVisible()).toBe(true);
 });
 
 test('Modal - should hide when hide() is called', async () => {
-    attachModalCloseButton();
-    const modal = new Modal(mockStartGame);
+    attachModal();
+    const modal = initModal();
     modal.hide();
     expect(modal.isVisible()).toBe(false);
 });
@@ -49,8 +45,8 @@ test('Modal - should hide when hide() is called', async () => {
 test('Modal - should hide when "Escape" is pressed', async () => {
     const addEventListenerSpy = jest.spyOn(window, 'addEventListener');
 
-    attachModalCloseButton();
-    const modal = new Modal(mockStartGame);
+    attachModal();
+    const modal = initModal();
     const keyDownEventHandler = addEventListenerSpy.mock.calls[0][1] as EventListener;
     keyDownEventHandler(new KeyboardEvent('keydown', { key: 'Escape' }));
     expect(mockStartGame).toHaveBeenCalled();
@@ -58,13 +54,12 @@ test('Modal - should hide when "Escape" is pressed', async () => {
 });
 
 test('Modal - should hide when x clicked', async () => {
-    const button = attachModalCloseButton();
-    const spy = jest.spyOn(button, 'addEventListener');
-    const modal = new Modal(mockStartGame);
-    const clickCallback = spy.mock.calls[0][1] as EventListener;
+    attachModal();
+    const modal = initModal();
     modal.show();
     expect(modal.isVisible()).toBe(true);
-    clickCallback(new Event('click'));
+    const button = document.querySelector('.close-modal-button') as HTMLElement;
+    button.click();
     expect(mockStartGame).toHaveBeenCalled();
     expect(modal.isVisible()).toBe(false);
 });

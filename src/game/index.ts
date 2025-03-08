@@ -5,6 +5,41 @@ import Obstacle from "../obstacle";
 
 const FRAME_RATE = 60;
 
+const startGameModalHtml = `
+    <div class="column">
+        <table>
+            <tr>
+                <td>&uarr;</td>
+                <td>up</td>
+            <tr>
+            <tr>
+                <td>&darr;</td>
+                <td>down</td>
+            <tr>
+            <tr>
+                <td class="center">s</td>
+                <td>change horses</td>
+            <tr>
+        </table>
+    </div>
+    <div class="column">
+        <table>
+            <tr>
+                <td class="center">r</td>
+                <td>run</td>
+            <tr>
+            <tr>
+                <td class="center">n</td>
+                <td>neigh</td>
+            <tr>
+            <tr>
+                <td class="center">" "</td>
+                <td>jump</td>
+            <tr>
+        </table>
+    </div>
+`;
+
 export class Game {
     private canvas: HTMLCanvasElement;
     private context: CanvasRenderingContext2D;
@@ -20,7 +55,7 @@ export class Game {
         const horse = await Horse.create(canvas, background, obstacle);
         const game = new Game(canvas, background, horse);
 
-        const modal = new Modal(() => game.startGame());
+        const modal = new Modal('Keys', startGameModalHtml, () => game.startGame());
         modal.show();
 
         return game
