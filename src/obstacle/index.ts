@@ -44,6 +44,11 @@ export default class Obstacle {
         return y;
     }
 
+    public reset () {
+        this.x = this.canvas.width;
+        this.y = this.getNewTopValue();
+    }
+
     public getBoundingBox (): BoundingBox {
         this.x += -1 * ((this.background.getDirection() * this.background.getSpeed()) / 15);
 

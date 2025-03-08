@@ -6,37 +6,39 @@ import Obstacle from "../obstacle";
 const FRAME_RATE = 60;
 
 const startGameModalHtml = `
-    <div class="column">
-        <table>
-            <tr>
-                <td>&uarr;</td>
-                <td>up</td>
-            <tr>
-            <tr>
-                <td>&darr;</td>
-                <td>down</td>
-            <tr>
-            <tr>
-                <td class="center">s</td>
-                <td>change horses</td>
-            <tr>
-        </table>
-    </div>
-    <div class="column">
-        <table>
-            <tr>
-                <td class="center">r</td>
-                <td>run</td>
-            <tr>
-            <tr>
-                <td class="center">n</td>
-                <td>neigh</td>
-            <tr>
-            <tr>
-                <td class="center">" "</td>
-                <td>jump</td>
-            <tr>
-        </table>
+    <div class="column-container">
+        <div class="column">
+            <table>
+                <tr>
+                    <td>&uarr;</td>
+                    <td>up</td>
+                <tr>
+                <tr>
+                    <td>&darr;</td>
+                    <td>down</td>
+                <tr>
+                <tr>
+                    <td class="center">s</td>
+                    <td>change horses</td>
+                <tr>
+            </table>
+        </div>
+        <div class="column">
+            <table>
+                <tr>
+                    <td class="center">r</td>
+                    <td>run</td>
+                <tr>
+                <tr>
+                    <td class="center">n</td>
+                    <td>neigh</td>
+                <tr>
+                <tr>
+                    <td class="center">" "</td>
+                    <td>jump</td>
+                <tr>
+            </table>
+        </div>
     </div>
 `;
 

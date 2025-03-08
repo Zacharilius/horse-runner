@@ -16,6 +16,7 @@ import Background from '../background';
 import Sound from '../sound';
 import { BoundingBox, isCollision } from '../bounding-box';
 import Obstacle from '../obstacle';
+import Modal from '../modal';
 
 const FRAME_WIDTH = 64;
 const FRAME_HEIGHT = 48;
@@ -86,6 +87,8 @@ export default class Horse {
     private neighingSound: Sound;
 
     private isDying = false;
+    private hasStartedDying = false;
+    private  hasFinishedDying = false;
 
     // Constructor
     static async create (
@@ -317,11 +320,25 @@ export default class Horse {
         }
     }
 
+    private showDyingModal () {
+        const restartGame = () => {
+            this.obstacle.reset();
+            this.isDying = false;
+            this.isHorseRunning = false;
+            this.hasStartedDying = false;
+            this.hasFinishedDying = false;
+            this.background.start();
+        }
+        const modal = new Modal(
+            'Ouch',
+            'You hit an obstacle',
+            restartGame,
+        );
+        modal.show();
+    }
+
     private setupEventListener () {
         let currentFrame = 0;
-
-        let hasStartedDying = false;
-        let hasFinishedDying = false;
 
 		this.canvas.addEventListener('tick', () => {
             this.handleMovementSounds();
@@ -331,14 +348,16 @@ export default class Horse {
             this.handleObstacleCollision();
 
             if (this.isDying) {
-                if (!hasStartedDying) {
-                    hasStartedDying = true;
+                if (!this.hasStartedDying) {
+                    this.hasStartedDying = true;
                     currentFrame = 0;
-                } else if (!hasFinishedDying) {
+                } else if (!this.hasFinishedDying) {
+                    // There are 5 dying horse frames in the sprite sheet
                     if (currentFrame < 5) {
                         currentFrame++;
                     } else {
-                        hasFinishedDying = true;
+                        this.hasFinishedDying = true;
+                        this.showDyingModal();
                     }
                 }
 

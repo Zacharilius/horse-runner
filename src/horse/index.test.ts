@@ -9,9 +9,10 @@ const SOUND_INDEX_FOR_NEIGHING = 2;
 
 jest.mock('../background');
 jest.mock('../bounding-box');
+jest.mock('../image');
+jest.mock('../modal');
 jest.mock('../obstacle');
 jest.mock('../sound');
-jest.mock('../image');
 
 class HorseTester {
     private horse: Horse;
