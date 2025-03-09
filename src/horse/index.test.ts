@@ -300,8 +300,8 @@ test('Horse - should switch back to original horse  image when "s" is pressed', 
 test('Horse - should play neighing sound when "n" key is pressed', async () => {
     const horseTester = await HorseTester.create();
 
-    // Creates 3 sounds.
-    expect(Sound).toHaveBeenCalledTimes(3);
+    // Creates 4 sounds.
+    expect(Sound).toHaveBeenCalledTimes(4);
     const mockNeighingSound = (Sound as jest.Mock).mock.instances[SOUND_INDEX_FOR_NEIGHING];
 
     horseTester.neigh();

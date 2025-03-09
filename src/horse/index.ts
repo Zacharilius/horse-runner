@@ -9,6 +9,7 @@ import whiteWhite from './images/whiteBodyWhiteManeHorse.png';
 
 import horseGalloping from './sounds/horse-galloping.wav';
 import horseNeighing from './sounds/horse-neigh.mp3';
+import horseScream from './sounds/horse-scream.mp3';
 import horseWalking from './sounds/horse-walking.mp3';
 
 import ImageTag from '../image'
@@ -85,6 +86,7 @@ export default class Horse {
     private walkingSound: Sound;
     private runningSound: Sound;
     private neighingSound: Sound;
+    private screamSound: Sound;
 
     private isDying = false;
     private hasStartedDying = false;
@@ -128,6 +130,7 @@ export default class Horse {
         this.walkingSound = new Sound(horseWalking);
         this.runningSound = new Sound(horseGalloping);
         this.neighingSound = new Sound(horseNeighing);
+        this.screamSound = new Sound(horseScream);
     }
 
     public start () {
@@ -351,6 +354,7 @@ export default class Horse {
                 if (!this.hasStartedDying) {
                     this.hasStartedDying = true;
                     currentFrame = 0;
+                    this.screamSound.play();
                 } else if (!this.hasFinishedDying) {
                     // There are 5 dying horse frames in the sprite sheet
                     if (currentFrame < 5) {
