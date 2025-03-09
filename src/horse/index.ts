@@ -334,7 +334,9 @@ export default class Horse {
         }
         const modal = new Modal(
             'Ouch',
-            'You hit an obstacle',
+            `
+                <p>You avoided ${this.obstacle.getCount()} obstacles!!</p>
+            `,
             restartGame,
         );
         modal.show();
