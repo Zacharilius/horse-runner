@@ -335,7 +335,7 @@ export default class Horse {
         const modal = new Modal(
             'Ouch',
             `
-                <p>You avoided ${this.obstacle.getCount()} obstacles!!</p>
+                <p>You avoided ${this.obstacle.getCount()} ${this.obstacle.getCount() === 1 ? 'obstacle' : 'obstacles'}!!</p>
             `,
             restartGame,
         );
