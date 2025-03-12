@@ -37,6 +37,10 @@ const startGameModalHtml = `
                     <td class="center">" "</td>
                     <td>jump</td>
                 <tr>
+                <tr>
+                    <td class="center">"p"</td>
+                    <td>pause</td>
+                <tr>
             </table>
         </div>
     </div>
@@ -47,6 +51,7 @@ export class Game {
     private context: CanvasRenderingContext2D;
     private background: Background;
     private horse: Horse;
+    private isPaused = false;
 
     // Constructor
     static async create (
@@ -75,6 +80,7 @@ export class Game {
     public startGame () {
         this.background.start();
         this.horse.start();
+        this.setupKeyBindings();
     }
 
     private initTicker (lastFrame = performance.now()) {
@@ -82,6 +88,26 @@ export class Game {
 			const newLastFrame = this.tick(lastFrame);
 			this.initTicker(newLastFrame);
 		});
+    }
+
+    private setupKeyBindings () {
+        window.addEventListener('keydown', (event) => {
+            if (event.key === 'p') {
+                // If the horse is dying, do not allow to pause because
+                // a modal is already displayed.
+                // TODO: Find a better way to determine global state.
+                if (this.horse.isHorseAlive()) {
+                    this.isPaused = !this.isPaused
+                    const modal = new Modal('Paused', 'Press "p" to play', () => this.isPaused = !this.isPaused);
+                    if (this.isPaused) {
+                        modal.show();
+                        this.horse.pause();
+                    } else {
+                        modal.hide();
+                    }
+                }
+            }
+        });
     }
 
     private tick (lastFrame: DOMHighResTimeStamp): DOMHighResTimeStamp {
@@ -95,7 +121,10 @@ export class Game {
                 composed: false,
             });
             this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
-            this.canvas.dispatchEvent(tick);
+            // Do not fire events when the game is paused.
+            if (!this.isPaused) {
+                this.canvas.dispatchEvent(tick);
+            }
             return now;
         }
         return lastFrame;

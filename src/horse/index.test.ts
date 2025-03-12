@@ -105,7 +105,7 @@ class HorseTester {
     }
 
     // =========================================================================
-    // Sound
+    // Horse Image
 
     public changeHorseImage () {
         this.keyDownEventHandler(new KeyboardEvent('keydown', { key: 's' }));
@@ -364,4 +364,27 @@ test('Horse - should die when the horse collides with an obstacle', async () => 
     const context = horseTester.getContext();
     expect(context.fillStyle).toBe('#ff0000');
     expect(context.fillRect).toHaveBeenCalled();
+});
+
+// =============================================================================
+// pause
+
+test('Horse - pause() should stop horse sounds', async () => {
+    const horseTester = await HorseTester.create();
+    const horse = horseTester.getHorse();
+
+    horse.pause();
+
+    const horseState = horse._getHorseState();
+    expect(horseState.walkingSound.pause).toHaveBeenCalledTimes(1);
+    expect(horseState.runningSound.pause).toHaveBeenCalledTimes(1);
+});
+
+// =============================================================================
+// isHorseAlive
+
+test('Horse - isHorseAlive() should return !isDying', async () => {
+    const horseTester = await HorseTester.create();
+    const horse = horseTester.getHorse();
+    expect(horse.isHorseAlive()).toBe(!horseTester.isHorseDying());
 });

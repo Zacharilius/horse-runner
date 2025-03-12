@@ -142,6 +142,15 @@ export default class Horse {
         }
     }
 
+    public pause () {
+        this.runningSound.pause();
+        this.walkingSound.pause();
+    }
+
+    public isHorseAlive() {
+        return !this.isDying;
+    }
+
     private setupKeyPress () {
         window.addEventListener('keydown', (event) => {
             if (this.isDying) {
