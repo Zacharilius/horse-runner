@@ -1,0 +1,17 @@
+.nvmrc
+assets
+coverage
+src
+public
+node_modules
+.git
+.gitignore
+README.md
+rsbuild.config.ts
+todo.md
+tsconfig.json
+eslint.config.mjs
+jest.config.js
+.vscode
+.github
+__mocks__
