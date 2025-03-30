@@ -1,18 +1,15 @@
 import { Scene, GameObjects } from 'phaser';
 
-export class MainMenu extends Scene
-{
+export class MainMenu extends Scene {
     background: GameObjects.Image;
     logo: GameObjects.Image;
     title: GameObjects.Text;
 
-    constructor ()
-    {
+    constructor () {
         super('MainMenu');
     }
 
-    create ()
-    {
+    create () {
         this.background = this.add.image(512, 384, 'background');
 
         this.title = this.add.text(375, 200, 'Horse Runner', {
