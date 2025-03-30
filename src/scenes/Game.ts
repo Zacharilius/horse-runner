@@ -1,10 +1,11 @@
 import { Scene } from 'phaser';
-// import { Player } from '../gameObjects/Player';
+import { Player } from '../gameObjects/Player';
 
 export class Game extends Scene {
     private backgroundGroup: Phaser.GameObjects.Group;
-    // private platforms: Phaser.Physics.Arcade.StaticGroup;
-    private cursors: Phaser.Types.Input.Keyboard.CursorKeys | undefined;
+    private platforms: Phaser.Physics.Arcade.StaticGroup;
+    private cursors: Phaser.Types.Input.Keyboard.CursorKeys;
+    private rKey: Phaser.Input.Keyboard.Key;
     private player: Player | undefined;
     // private stars: Phaser.Physics.Arcade.Group;
     // private bombs: Phaser.Physics.Arcade.Group;
@@ -14,30 +15,30 @@ export class Game extends Scene {
     // background: Phaser.GameObjects.Image;
     // msg_text : Phaser.GameObjects.Text;
 
+    private walkVelocity = 10;
+    private runVelocity = 20;
+
     constructor ()
     {
         super('Game');
     }
 
-    preload () {
-        this.load.image('snowman', 'assets/Snowman.png')
-    }
+    preload () {}
 
     init () {
         this.cursors = this.input.keyboard.createCursorKeys();
+        this.rKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.R);
     }
 
     create ()
     {
         const { width, height } = this.scale
-
         
         this.backgroundGroup = this.backgroundGroup = this.add.group();
         const backgroundScale = 0.3;
         this.backgroundGroup.add(this.add.tileSprite(0, 200, 5000, 704,'hillsBackground').setOrigin(0, 0).setScale(backgroundScale).setScrollFactor(0, 0));
         this.backgroundGroup.add(this.add.tileSprite(0, 50, 5000, 1242, 'treesBackground').setOrigin(0, 0).setScale(backgroundScale).setScrollFactor(0, 0));
         this.backgroundGroup.add(this.add.tileSprite(0, 305, 5000, 992, 'trailBackground').setOrigin(0, 0).setScale(backgroundScale).setScrollFactor(0, 0));
-
 
         // this.add.image(400, 300, 'sky');
 
@@ -47,16 +48,23 @@ export class Game extends Scene {
         // this.platforms.create(50, 250, 'ground');
         // this.platforms.create(750, 220, 'ground');
 
-        // this.player = new Player(this, gameWidth / 2, 0);
-        this.player = this.add.image(width * 0.5, height * 0.5, 'snowman')
-            .setOrigin(0.5, 1)
-            .setScale(2);
+        this.player = new Player(this, width / 2, (height / 2) + 75);
 
+        // const bottomWall = this.add.rectangle(width , height, 600000000, 10, 0x0000ff);
+        // this.physics.add.existing(bottomWall, true);
+        // this.physics.add.collider(this.player, bottomWall);
+        // this.player = this.add.image(width * 0.5, height * 0.5, 'snowman')
+        //     .setOrigin(0.5, 1)
+        //     .setScale(2);
+
+        this.coordinatesText = this.add.text(10, 10, 'Mouse: (0, 0)', {
+            fontSize: '16px',
+            fill: '000000',
+        });
 
         // Camera
-        this.cameras.main.startFollow(this.player);
-        this.cameras.main.setFollowOffset(0, 145)
-        // this.cameras.main.setBounds(0, 0, gameWidth, gameHeight);
+        // this.cameras.main.startFollow(this.player);
+        // this.cameras.main.setFollowOffset(0, 75)
 
         // this.physics.add.collider(this.player, this.platforms);
 
@@ -80,28 +88,43 @@ export class Game extends Scene {
     }
 
     update () {
-        let velocityX;
-        if (this.cursors?.left.isDown) {
-            // this.player?.moveLeft();
-            velocityX = -10;    
-        } else if (this.cursors?.right.isDown) {
-            // this.player?.moveRight();
-            velocityX = 10;
-        } else {
-            // this.player?.idle();
-            velocityX = 0;
-        }
-        
-        if (this.cursors?.up.isDown) {
-            // this.player?.jump();
+        let isRunning = false;
+        if (this.rKey.isDown) {
+            isRunning = true;
         }
 
-        this.player.x += velocityX;
+        // Player Movement
+        const playerMovement = isRunning ? this.runVelocity : this.walkVelocity;
+
+        let velocityX;
+        if (this.cursors?.left.isDown) {
+            this.player?.moveLeft();
+            velocityX = -(playerMovement);    
+        } else if (this.cursors?.right.isDown) {
+            this.player?.moveRight();
+            velocityX = playerMovement;
+        } else {
+            this.player?.idle();
+            velocityX = 0;
+        }
+    
+        // Start Jumping
+        if (this.cursors?.up.isDown) {
+            this.player?.startJumping(this.time);
+        }
+        // Continue Jumping
+        this.player?.handleJumping();
+
+        // Get mouse coordinates
+        const mouseX = this.input.mousePointer.x;
+        const mouseY = this.input.mousePointer.y;
+
+        // Update text object
+        this.coordinatesText.setText(`Mouse: (${mouseX}, ${mouseY})`);
 
         // Background Scrolling
         this.backgroundGroup.getChildren().forEach((layer) => {
-            console.log('fixme here', this.cameras.main.scrollX);
-            layer.tilePositionX = this.cameras.main.scrollX * 0.3; // Adjust scroll speed
+            layer.tilePositionX += velocityX;
         });
     }
 

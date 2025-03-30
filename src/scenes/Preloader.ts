@@ -32,21 +32,35 @@ export class Preloader extends Scene
         //  Load the assets for the game - Replace with your own assets
         this.load.setPath('assets');
 
+        // Backgrounds
         this.load.image('hillsBackground', '/background/hills.png');
         this.load.image('trailBackground', '/background/trail.png');
         this.load.image('treesBackground', '/background/trees.png');
 
+        // Horses
+        this.load.spritesheet(
+            'whiteBodyWhiteManeHorse',
+            '/horses/whiteBodyWhiteManeHorse.png',
+            // 24 rows & 8 columns
+            // 512 x 1152
+            // const FRAME_WIDTH = 64;
+            // const FRAME_HEIGHT = 48;
+            { frameWidth: 64, frameHeight: 48, scale: 2 }
+            // { frameWidth: 32, frameHeight: 48 }
+        );
+
+        // Template: TODO REMOVE
         this.load.image('logo', 'logo.png');
         this.load.image('bomb', 'bomb.png');
         this.load.image('phaser', 'phaser.png');
         this.load.image('ground', 'platform.png');
         this.load.image('sky', 'sky.png');
         this.load.image('star', 'star.png');
-        this.load.spritesheet(
-            'dude',
-            'dude.png',
-            { frameWidth: 32, frameHeight: 48 }
-        );
+        // this.load.spritesheet(
+        //     'dude',
+        //     'dude.png',
+        //     { frameWidth: 32, frameHeight: 48 }
+        // );
     }
 
     create ()

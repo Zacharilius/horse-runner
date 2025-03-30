@@ -1,48 +1,84 @@
 export class Player extends Phaser.Physics.Arcade.Sprite {
+  private initY: number;
+  private isJumping = false;
+  private jumpFramePixels = 10;
+  private jumpTime = 500;
+
   constructor(scene: Phaser.Scene, x: number, y: number) {
-    super(scene, x, y, 'dude');
-    scene.add.existing(this);
-    scene.physics.add.existing(this);
+        super(scene, x, y, 'whiteBodyWhiteManeHorse');
+        this.initY = y;
+        this.setScale(4);
+        scene.add.existing(this);
 
-    this.setBounce(0.2);
-    this.setCollideWorldBounds(true);
-
-    this.initAnimations();
+        this.initAnimations();
   }
   initAnimations() {
     this.anims.create({
         key: 'left',
-        frames: this.anims.generateFrameNumbers('dude', { start: 0, end: 3 }),
-        frameRate: 10,
+        // 24 rows & 8 columns
+        // Frames for 2 rows...
+        frames: this.anims.generateFrameNumbers('whiteBodyWhiteManeHorse', { start: 64, end: 71}),
+        frameRate: 25,
         repeat: -1
     });
     this.anims.create({
         key: 'turn',
-        frames: [{ key: 'dude', frame: 4 }],
+        frames: [{ key: 'whiteBodyWhiteManeHorse', frame: 16 }],
         frameRate: 1,
     });
     this.anims.create({
         key: 'right',
-        frames: this.anims.generateFrameNumbers('dude', { start: 5, end: 8 }),
-        frameRate: 10,
+        frames: this.anims.generateFrameNumbers('whiteBodyWhiteManeHorse', { start: 72, end: 79 }),
+        frameRate: 25,
+        repeat: -1
+    });
+    this.anims.create({
+        key: 'up',
+        frames: this.anims.generateFrameNumbers('whiteBodyWhiteManeHorse', { start: 72, end: 79 }),
+        frameRate: 25,
+        repeat: -1
+    });
+    this.anims.create({
+        key: 'down',
+        frames: this.anims.generateFrameNumbers('whiteBodyWhiteManeHorse', { start: 72, end: 79 }),
+        frameRate: 25,
         repeat: -1
     });
   }
   moveLeft() {
-    this.setVelocityX(-200);
     this.anims.play('left', true);
   }
   moveRight() {
-    this.setVelocityX(200);
     this.anims.play('right', true);
   }
+  moveUp() {
+    this.anims.play('up', true);
+  }
+  moveDown() {
+    this.anims.play('down', true);
+  }
   idle() {
-    this.setVelocityX(0);
     this.anims.play('turn');
   }
-  jump() {
-    if (this.body?.blocked.down) {
-        this.setVelocityY(-500);
+  startJumping(time: any) {
+    if (!this.isJumping && this.isPlayerOnGround()) {
+        console.log('Jumping');
+        this.isJumping = true;
+        time.delayedCall(this.jumpTime, () => {
+          this.isJumping = false;
+        });
     }
+  }
+  handleJumping() {
+    if (this.isJumping) {
+        this.y -= this.jumpFramePixels; // Move up
+    } else {
+        if (!this.isPlayerOnGround()) {
+            this.y += this.jumpFramePixels; // Move down
+        }
+    }
+  }
+  private isPlayerOnGround(): boolean {
+    return this.y == this.initY
   }
 }
