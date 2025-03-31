@@ -67,12 +67,16 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
         frameRate: FRAME_RATE,
         repeat: FRAME_REPEAT
     });
+
+    // Up
     this.anims.create({
         key: 'up',
         frames: this.anims.generateFrameNumbers('whiteBodyWhiteManeHorse', { start: 72, end: 79 }),
         frameRate: FRAME_RATE,
         repeat: FRAME_REPEAT
     });
+
+    // Down
     this.anims.create({
         key: 'down',
         frames: this.anims.generateFrameNumbers('whiteBodyWhiteManeHorse', { start: 72, end: 79 }),
