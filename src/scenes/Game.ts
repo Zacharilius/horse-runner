@@ -65,7 +65,7 @@ export class Game extends Scene {
     
         // Start Jumping
         if (this.cursors?.up.isDown) {
-            this.player?.startJumping(this.time);
+            this.player?.startJumping();
         }
         // Continue Jumping
         this.player?.handleJumping();

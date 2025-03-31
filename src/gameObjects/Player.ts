@@ -10,119 +10,150 @@ const RIGHT_WALK_SPRITE_SHEET_START = 9 * SHEET_COLUMNS;
 const RIGHT_RUN_SPRITE_SHEET_START = 13 * SHEET_COLUMNS;
 
 export class Player extends Phaser.Physics.Arcade.Sprite {
-  private initY: number;
-  private isJumping = false;
-  private jumpFramePixels = 4;
-  private jumpTime = 250;
+    private initY: number;
+    private isJumping = false;
+    private jumpFramePixels = 4;
+    private jumpTime = 250;
 
-  constructor(scene: Phaser.Scene, x: number, y: number) {
+    constructor(scene: Phaser.Scene, x: number, y: number) {
         super(scene, x, y, 'whiteBodyWhiteManeHorse');
         this.initY = y;
         this.setScale(4);
         scene.add.existing(this);
 
         this.initAnimations();
-  }
-  private initAnimations() {
-    // Left
-    this.anims.create({
-        key: 'leftWalk',
-        frames: this.anims.generateFrameNumbers('whiteBodyWhiteManeHorse', {
-            start: LEFT_WALK_SPRITE_SHEET_START,
-            end: LEFT_WALK_SPRITE_SHEET_START + WALK_SPRITE_SHEET_COLUMNS}),
-        frameRate: FRAME_RATE,
-        repeat: FRAME_REPEAT
-    });
-    this.anims.create({
-        key: 'leftRun',
-        frames: this.anims.generateFrameNumbers('whiteBodyWhiteManeHorse', {
-            start: LEFT_RUN_SPRITE_SHEET_START,
-            end: LEFT_RUN_SPRITE_SHEET_START + RUN_SPRITE_SHEET_COLUMNS }),
-        frameRate: FRAME_RATE,
-        repeat: FRAME_REPEAT
-    });
+    }
+    private initAnimations() {
+        // Left
+        this.anims.create({
+            key: 'leftWalk',
+            frames: this.anims.generateFrameNumbers('whiteBodyWhiteManeHorse', {
+                start: LEFT_WALK_SPRITE_SHEET_START,
+                end: LEFT_WALK_SPRITE_SHEET_START + WALK_SPRITE_SHEET_COLUMNS}),
+            frameRate: FRAME_RATE,
+            repeat: FRAME_REPEAT
+        });
+        this.anims.create({
+            key: 'leftRun',
+            frames: this.anims.generateFrameNumbers('whiteBodyWhiteManeHorse', {
+                start: LEFT_RUN_SPRITE_SHEET_START,
+                end: LEFT_RUN_SPRITE_SHEET_START + RUN_SPRITE_SHEET_COLUMNS }),
+            frameRate: FRAME_RATE,
+            repeat: FRAME_REPEAT
+        });
 
-    // Turn
-    this.anims.create({
-        key: 'turn',
-        frames: [{ key: 'whiteBodyWhiteManeHorse', frame: 16 }],
-        frameRate: FRAME_REPEAT,
-    });
+        // Turn
+        this.anims.create({
+            key: 'turn',
+            frames: [{ key: 'whiteBodyWhiteManeHorse', frame: 16 }],
+            frameRate: FRAME_REPEAT,
+        });
 
-    // Right
-    this.anims.create({
-        key: 'rightWalk',
-        frames: this.anims.generateFrameNumbers('whiteBodyWhiteManeHorse', {
-            start: RIGHT_WALK_SPRITE_SHEET_START,
-            end: RIGHT_WALK_SPRITE_SHEET_START + WALK_SPRITE_SHEET_COLUMNS }),
-        frameRate: FRAME_RATE,
-        repeat: FRAME_REPEAT
-    });
-    this.anims.create({
-        key: 'rightRun',
-        frames: this.anims.generateFrameNumbers('whiteBodyWhiteManeHorse', {
-            start: RIGHT_RUN_SPRITE_SHEET_START,
-            end: RIGHT_RUN_SPRITE_SHEET_START + RUN_SPRITE_SHEET_COLUMNS
-        }),
-        frameRate: FRAME_RATE,
-        repeat: FRAME_REPEAT
-    });
+        // Right
+        this.anims.create({
+            key: 'rightWalk',
+            frames: this.anims.generateFrameNumbers('whiteBodyWhiteManeHorse', {
+                start: RIGHT_WALK_SPRITE_SHEET_START,
+                end: RIGHT_WALK_SPRITE_SHEET_START + WALK_SPRITE_SHEET_COLUMNS }),
+            frameRate: FRAME_RATE,
+            repeat: FRAME_REPEAT
+        });
+        this.anims.create({
+            key: 'rightRun',
+            frames: this.anims.generateFrameNumbers('whiteBodyWhiteManeHorse', {
+                start: RIGHT_RUN_SPRITE_SHEET_START,
+                end: RIGHT_RUN_SPRITE_SHEET_START + RUN_SPRITE_SHEET_COLUMNS
+            }),
+            frameRate: FRAME_RATE,
+            repeat: FRAME_REPEAT
+        });
 
-    // Up
-    this.anims.create({
-        key: 'up',
-        frames: this.anims.generateFrameNumbers('whiteBodyWhiteManeHorse', { start: 72, end: 79 }),
-        frameRate: FRAME_RATE,
-        repeat: FRAME_REPEAT
-    });
+        // Up
+        this.anims.create({
+            key: 'up',
+            frames: this.anims.generateFrameNumbers('whiteBodyWhiteManeHorse', { start: 72, end: 79 }),
+            frameRate: FRAME_RATE,
+            repeat: FRAME_REPEAT
+        });
 
-    // Down
-    this.anims.create({
-        key: 'down',
-        frames: this.anims.generateFrameNumbers('whiteBodyWhiteManeHorse', { start: 72, end: 79 }),
-        frameRate: FRAME_RATE,
-        repeat: FRAME_REPEAT
-    });
-  }
-  public walkLeft() {
-    this.anims.play('leftWalk', true);
-  }
-  public runLeft() {
-    this.anims.play('leftRun', true);
-  }
-  public walkRight() {
-    this.anims.play('rightWalk', true);
-  }
-  public runRight() {
-    this.anims.play('rightRun', true);
-  }
-  public moveUp() {
-    this.anims.play('up', true);
-  }
-  public moveDown() {
-    this.anims.play('down', true);
-  }
-  public idle() {
-    this.anims.play('turn');
-  }
-  public startJumping(time: Phaser.Time.Clock) {
-    if (!this.isJumping && this.isPlayerOnGround()) {
-        this.isJumping = true;
-        time.delayedCall(this.jumpTime, () => {
-          this.isJumping = false;
+        // Down
+        this.anims.create({
+            key: 'down',
+            frames: this.anims.generateFrameNumbers('whiteBodyWhiteManeHorse', { start: 72, end: 79 }),
+            frameRate: FRAME_RATE,
+            repeat: FRAME_REPEAT
         });
     }
-  }
-  public handleJumping() {
-    if (this.isJumping) {
-        this.y -= this.jumpFramePixels; // Move up
-    } else {
-        if (!this.isPlayerOnGround()) {
-            this.y += this.jumpFramePixels; // Move down
+    public walkLeft() {
+        this.anims.play('leftWalk', true);
+        this.playWalkingSound();
+    }
+    public runLeft() {
+        this.anims.play('leftRun', true);
+        this.playGallopingSound();
+    }
+    public walkRight() {
+        this.anims.play('rightWalk', true);
+        this.playWalkingSound();
+
+    }
+    public runRight() {
+        this.anims.play('rightRun', true);
+        this.playGallopingSound();
+    }
+    public moveUp() {
+        this.anims.play('up', true);
+    }
+    public moveDown() {
+        this.anims.play('down', true);
+    }
+    public idle() {
+        this.anims.play('turn');
+        this.stopWalkingSound();
+        this.stopGallopingSound();
+    }
+    public startJumping() {
+    if (!this.isJumping && this.isPlayerOnGround()) {
+        this.isJumping = true;
+        this.scene.time.delayedCall(this.jumpTime, () => {
+            this.isJumping = false;
+        });
+    }
+    }
+    public handleJumping() {
+        if (this.isJumping) {
+            this.y -= this.jumpFramePixels; // Move up
+        } else {
+            if (!this.isPlayerOnGround()) {
+                this.y += this.jumpFramePixels; // Move down
+            }
         }
     }
-  }
-  private isPlayerOnGround(): boolean {
-    return this.y == this.initY
-  }
+    private isPlayerOnGround(): boolean {
+        return this.y == this.initY
+    }
+    private playWalkingSound() {
+        // Only play walking sound if not galloping
+        this.stopGallopingSound();
+        if (!this.scene.sound.isPlaying('walking')) {
+            this.scene.sound.play('walking');
+        }
+    }
+    private playGallopingSound() {
+        // Only play galloping sound if not walking
+        this.stopWalkingSound();
+        if (!this.scene.sound.isPlaying('galloping')) {
+            this.scene.sound.play('galloping');
+        }
+    }
+    private stopWalkingSound() {
+        if (this.scene.sound.isPlaying('walking')) {
+            this.scene.sound.stopByKey('walking');
+        }
+    }
+    private stopGallopingSound() {
+        if (this.scene.sound.isPlaying('galloping')) {
+            this.scene.sound.stopByKey('galloping');
+        }
+    }
 }

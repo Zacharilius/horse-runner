@@ -27,17 +27,23 @@ export class Preloader extends Scene {
         this.load.setPath('assets');
 
         // Backgrounds
-        this.load.image('hillsBackground', '/background/hills.png');
-        this.load.image('trailBackground', '/background/trail.png');
-        this.load.image('treesBackground', '/background/trees.png');
+        this.load.image('hillsBackground', 'background/hills.png');
+        this.load.image('trailBackground', 'background/trail.png');
+        this.load.image('treesBackground', 'background/trees.png');
 
         // Horses
         // TODO: Load all spritesheets;
         this.load.spritesheet(
             'whiteBodyWhiteManeHorse',
-            '/horses/whiteBodyWhiteManeHorse.png',
+            'horses/images/whiteBodyWhiteManeHorse.png',
             { frameWidth: 64, frameHeight: 48, scale: 2 }
         );
+
+        // Sounds
+        this.load.audio('galloping', 'horses/sounds/horse-galloping.wav');
+        this.load.audio('neigh', 'horses/sounds/horse-neigh.mp3');
+        this.load.audio('scream', 'horses/sounds/horse-scream.mp3');
+        this.load.audio('walking', 'horses/sounds/horse-walking.mp3');
     }
 
     create () {
