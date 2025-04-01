@@ -8,16 +8,21 @@ const LEFT_WALK_SPRITE_SHEET_START = 8 * SHEET_COLUMNS;
 const LEFT_RUN_SPRITE_SHEET_START = 12 * SHEET_COLUMNS;
 const RIGHT_WALK_SPRITE_SHEET_START = 9 * SHEET_COLUMNS;
 const RIGHT_RUN_SPRITE_SHEET_START = 13 * SHEET_COLUMNS;
+const UP_WALK_SPRITE_SHEET_START = 11 * SHEET_COLUMNS;
+const DOWN_WALK_SPRITE_SHEET_START = 10 * SHEET_COLUMNS;
+
+const MAX_TRAIL_TOP = 305;
+const MAX_TRAIL_BOTTOM = 420;
 
 export class Player extends Phaser.Physics.Arcade.Sprite {
-    private initY: number;
     private isJumping = false;
+    private isJumpingUp = false;
+    private isJumpingDown = false;
     private jumpFramePixels = 4;
     private jumpTime = 250;
 
     constructor(scene: Phaser.Scene, x: number, y: number) {
         super(scene, x, y, 'whiteBodyWhiteManeHorse');
-        this.initY = y;
         this.setScale(4);
         scene.add.existing(this);
 
@@ -71,7 +76,11 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
         // Up
         this.anims.create({
             key: 'up',
-            frames: this.anims.generateFrameNumbers('whiteBodyWhiteManeHorse', { start: 72, end: 79 }),
+            // 10 down 11 up
+            frames: this.anims.generateFrameNumbers('whiteBodyWhiteManeHorse', {
+                start: UP_WALK_SPRITE_SHEET_START,
+                end: UP_WALK_SPRITE_SHEET_START + WALK_SPRITE_SHEET_COLUMNS
+            }),
             frameRate: FRAME_RATE,
             repeat: FRAME_REPEAT
         });
@@ -79,7 +88,10 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
         // Down
         this.anims.create({
             key: 'down',
-            frames: this.anims.generateFrameNumbers('whiteBodyWhiteManeHorse', { start: 72, end: 79 }),
+            frames: this.anims.generateFrameNumbers('whiteBodyWhiteManeHorse', {
+                start: DOWN_WALK_SPRITE_SHEET_START,
+                end: DOWN_WALK_SPRITE_SHEET_START + WALK_SPRITE_SHEET_COLUMNS
+            }),
             frameRate: FRAME_RATE,
             repeat: FRAME_REPEAT
         });
@@ -102,10 +114,24 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
         this.playGallopingSound();
     }
     public moveUp() {
-        this.anims.play('up', true);
+        if (!this.isJumpInProgress() && this.y - 1 > MAX_TRAIL_TOP) {
+            this.anims.play('up', true);
+            this.playWalkingSound();
+            this.y -= 1;
+        } else {
+            this.stopGallopingSound();
+            this.stopWalkingSound();
+        }
     }
     public moveDown() {
-        this.anims.play('down', true);
+        if (!this.isJumpInProgress() && this.y + 1 < MAX_TRAIL_BOTTOM) {
+            this.anims.play('down', true);
+            this.playWalkingSound();
+            this.y += 1;
+        } else {
+            this.stopGallopingSound();
+            this.stopWalkingSound();
+        }
     }
     public idle() {
         this.anims.play('turn');
@@ -113,24 +139,30 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
         this.stopGallopingSound();
     }
     public startJumping() {
-    if (!this.isJumping && this.isPlayerOnGround()) {
-        this.isJumping = true;
-        this.scene.time.delayedCall(this.jumpTime, () => {
-            this.isJumping = false;
-        });
-    }
-    }
-    public handleJumping() {
-        if (this.isJumping) {
-            this.y -= this.jumpFramePixels; // Move up
-        } else {
-            if (!this.isPlayerOnGround()) {
-                this.y += this.jumpFramePixels; // Move down
-            }
+        if (!this.isJumping) {
+            this.isJumping = true;
+            this.isJumpingUp = true;
+            this.isJumpingDown = false;
+            this.scene.time.delayedCall(this.jumpTime, () => {
+                this.isJumpingUp = false;
+                this.isJumpingDown = true;
+                this.scene.time.delayedCall(this.jumpTime, () => {
+                    this.isJumpingDown = false;
+                    this.isJumping = false;
+                });
+
+            });
         }
     }
-    private isPlayerOnGround(): boolean {
-        return this.y == this.initY
+    public handleJumping() {
+        if (this.isJumpingUp) {
+            this.y -= this.jumpFramePixels; // Move up
+        } else if (this.isJumpingDown) {
+            this.y += this.jumpFramePixels; // Move down
+        }
+    }
+    private isJumpInProgress() {
+        return this.isJumping;
     }
     private playWalkingSound() {
         // Only play walking sound if not galloping

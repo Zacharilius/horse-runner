@@ -36,7 +36,7 @@ export class Preloader extends Scene {
         this.load.spritesheet(
             'whiteBodyWhiteManeHorse',
             'horses/images/whiteBodyWhiteManeHorse.png',
-            { frameWidth: 64, frameHeight: 48, scale: 2 }
+            { frameWidth: 64, frameHeight: 48 }
         );
 
         // Sounds

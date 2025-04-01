@@ -5,6 +5,7 @@ export class Game extends Scene {
     private backgroundGroup: Phaser.GameObjects.Group | undefined;
     private cursors: Phaser.Types.Input.Keyboard.CursorKeys | undefined;;
     private rKey: Phaser.Input.Keyboard.Key | undefined;
+    private spaceKey: Phaser.Input.Keyboard.Key | undefined;
     private player: Player | undefined;
 
     private walkVelocity = 10;
@@ -18,6 +19,7 @@ export class Game extends Scene {
         if (this?.input?.keyboard) {
             this.cursors = this.input.keyboard.createCursorKeys();
             this.rKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.R);
+            this.spaceKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE);
         } else {
             console.error('Keyboard input not available');
         }
@@ -41,7 +43,7 @@ export class Game extends Scene {
             isRunning = true;
         }
 
-        let velocityX;
+        let velocityX: number;
         if (this.cursors?.left.isDown) {
             if (isRunning) {
                 this.player?.runLeft();
@@ -58,13 +60,19 @@ export class Game extends Scene {
                 this.player?.walkRight();
                 velocityX = this.walkVelocity;
             }
+        } else if (this.cursors?.up.isDown) {
+            this.player?.moveUp();
+            velocityX = 0;
+        } else if (this.cursors?.down.isDown) {
+            this.player?.moveDown();
+            velocityX = 0;
         } else {
             this.player?.idle();
             velocityX = 0;
         }
     
         // Start Jumping
-        if (this.cursors?.up.isDown) {
+        if (this.spaceKey?.isDown) {
             this.player?.startJumping();
         }
         // Continue Jumping
