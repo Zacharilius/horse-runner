@@ -1,3 +1,6 @@
+import { getSelectedSprite } from "../state";
+import { HorseSprites } from "./horseSprites";
+
 const FRAME_RATE = 25;
 const FRAME_REPEAT = 1;
 
@@ -22,17 +25,33 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     private jumpTime = 250;
 
     constructor(scene: Phaser.Scene, x: number, y: number) {
-        super(scene, x, y, 'whiteBodyWhiteManeHorse');
+        const selectedSpriteName = getSelectedSprite();
+        super(scene, x, y, selectedSpriteName);
         this.setScale(4);
         scene.add.existing(this);
 
-        this.initAnimations();
+        this.initAnimations(selectedSpriteName);
     }
-    private initAnimations() {
+    public updateSpriteSheet(newSpriteSheet: HorseSprites) {
+        // Remove the old animations
+        this.anims.remove('leftWalk');
+        this.anims.remove('leftRun');
+        this.anims.remove('rightWalk');
+        this.anims.remove('rightRun');
+        this.anims.remove('up');
+        this.anims.remove('down');
+        this.anims.remove('turn');
+
+        // this.anims.
+        this.setTexture(newSpriteSheet);
+        this.initAnimations(newSpriteSheet);
+    }
+
+    private initAnimations(selectedSpriteName: string) {
         // Left
         this.anims.create({
             key: 'leftWalk',
-            frames: this.anims.generateFrameNumbers('whiteBodyWhiteManeHorse', {
+            frames: this.anims.generateFrameNumbers(selectedSpriteName, {
                 start: LEFT_WALK_SPRITE_SHEET_START,
                 end: LEFT_WALK_SPRITE_SHEET_START + WALK_SPRITE_SHEET_COLUMNS}),
             frameRate: FRAME_RATE,
@@ -40,7 +59,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
         });
         this.anims.create({
             key: 'leftRun',
-            frames: this.anims.generateFrameNumbers('whiteBodyWhiteManeHorse', {
+            frames: this.anims.generateFrameNumbers(selectedSpriteName, {
                 start: LEFT_RUN_SPRITE_SHEET_START,
                 end: LEFT_RUN_SPRITE_SHEET_START + RUN_SPRITE_SHEET_COLUMNS }),
             frameRate: FRAME_RATE,
@@ -50,14 +69,14 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
         // Turn
         this.anims.create({
             key: 'turn',
-            frames: [{ key: 'whiteBodyWhiteManeHorse', frame: 16 }],
+            frames: [{ key: selectedSpriteName, frame: 16 }],
             frameRate: FRAME_REPEAT,
         });
 
         // Right
         this.anims.create({
             key: 'rightWalk',
-            frames: this.anims.generateFrameNumbers('whiteBodyWhiteManeHorse', {
+            frames: this.anims.generateFrameNumbers(selectedSpriteName, {
                 start: RIGHT_WALK_SPRITE_SHEET_START,
                 end: RIGHT_WALK_SPRITE_SHEET_START + WALK_SPRITE_SHEET_COLUMNS }),
             frameRate: FRAME_RATE,
@@ -65,7 +84,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
         });
         this.anims.create({
             key: 'rightRun',
-            frames: this.anims.generateFrameNumbers('whiteBodyWhiteManeHorse', {
+            frames: this.anims.generateFrameNumbers(selectedSpriteName, {
                 start: RIGHT_RUN_SPRITE_SHEET_START,
                 end: RIGHT_RUN_SPRITE_SHEET_START + RUN_SPRITE_SHEET_COLUMNS
             }),
@@ -77,7 +96,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
         this.anims.create({
             key: 'up',
             // 10 down 11 up
-            frames: this.anims.generateFrameNumbers('whiteBodyWhiteManeHorse', {
+            frames: this.anims.generateFrameNumbers(selectedSpriteName, {
                 start: UP_WALK_SPRITE_SHEET_START,
                 end: UP_WALK_SPRITE_SHEET_START + WALK_SPRITE_SHEET_COLUMNS
             }),
@@ -88,7 +107,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
         // Down
         this.anims.create({
             key: 'down',
-            frames: this.anims.generateFrameNumbers('whiteBodyWhiteManeHorse', {
+            frames: this.anims.generateFrameNumbers(selectedSpriteName, {
                 start: DOWN_WALK_SPRITE_SHEET_START,
                 end: DOWN_WALK_SPRITE_SHEET_START + WALK_SPRITE_SHEET_COLUMNS
             }),

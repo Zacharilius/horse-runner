@@ -1,4 +1,5 @@
 import { Scene } from 'phaser';
+import { HorseSprites } from '../gameObjects/horseSprites';
 
 export class Preloader extends Scene {
     constructor () {
@@ -32,12 +33,14 @@ export class Preloader extends Scene {
         this.load.image('treesBackground', 'background/trees.png');
 
         // Horses
-        // TODO: Load all spritesheets;
-        this.load.spritesheet(
-            'whiteBodyWhiteManeHorse',
-            'horses/images/whiteBodyWhiteManeHorse.png',
-            { frameWidth: 64, frameHeight: 48 }
-        );
+        Object.keys(HorseSprites).forEach((key) => {
+            const horseSprite = HorseSprites[key as keyof typeof HorseSprites];
+            this.load.spritesheet(
+                horseSprite,
+                `horses/images/${horseSprite}.png`,
+                { frameWidth: 64, frameHeight: 48 }
+            );
+        });
 
         // Sounds
         this.load.audio('galloping', 'horses/sounds/horse-galloping.wav');
