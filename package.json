@@ -7,7 +7,7 @@
     "lint": "npx eslint --ignore-pattern 'dist/**' .",
     "preview": "rsbuild preview",
     "test": "jest",
-    "verify": "npm run lint"
+    "verify": "npm run lint && npm run test"
   },
   "devDependencies": {
     "@eslint/js": "^9.19.0",
