@@ -1,4 +1,4 @@
-import { Player } from './Player';
+import { JUMP_FRAME_COUNT, Player } from './Player';
 import { getSelectedSprite } from '../state';
 import { HorseSprites } from './horseSprites';
 import Phaser from 'phaser';
@@ -131,11 +131,32 @@ describe('Player', () => {
     });
 
     it('should handle jumping logic correctly', () => {
+        player.y = -200;
+        // Not Jumping
+        expect(player['isJumping']).toBe(false);
+        expect(player['isJumpingUp']).toBe(false);
+        expect(player['isJumpingDown']).toBe(false);
         player.startJumping();
 
-        expect(player['isJumping']).toBe(true);
-        expect(player['isJumpingUp']).toBe(true);
+        // Jumping up
+        for (let i = 0; i < JUMP_FRAME_COUNT; i++) {
+            expect(player['isJumping']).toBe(true);
+            expect(player['isJumpingUp']).toBe(true);
+            expect(player['isJumpingDown']).toBe(false);
+            player.handleJumping();
+        }
+
+        // Jumping down
+        for (let i = 0; i < JUMP_FRAME_COUNT; i++) {
+            expect(player['isJumping']).toBe(true);
+            expect(player['isJumpingUp']).toBe(false);
+            expect(player['isJumpingDown']).toBe(true);
+            player.handleJumping();
+        }
+
+        // Finish jumping
+        expect(player['isJumping']).toBe(false);
+        expect(player['isJumpingUp']).toBe(false);
         expect(player['isJumpingDown']).toBe(false);
-        expect(mockScene.time.delayedCall).toHaveBeenCalledTimes(1); // Up
     });
 });

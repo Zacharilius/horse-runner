@@ -15,6 +15,9 @@ const RIGHT_RUN_SPRITE_SHEET_START = 13 * SHEET_COLUMNS;
 const UP_WALK_SPRITE_SHEET_START = 11 * SHEET_COLUMNS;
 const DOWN_WALK_SPRITE_SHEET_START = 10 * SHEET_COLUMNS;
 
+// The number of frames to jump up and then down
+export const JUMP_FRAME_COUNT = 25;
+
 const MAX_TRAIL_TOP = 305;
 const MAX_TRAIL_BOTTOM = 420;
 
@@ -23,7 +26,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     private isJumpingUp = false;
     private isJumpingDown = false;
     private jumpFramePixels = 4;
-    private jumpTime = 250;
+    private jumpStartY = 0;
 
     constructor(scene: Phaser.Scene, x: number, y: number) {
         const selectedSpriteName = getSelectedSprite();
@@ -161,24 +164,26 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     public startJumping() {
         if (!this.isJumping) {
             this.isJumping = true;
+            this.jumpStartY = this.y;
             this.isJumpingUp = true;
             this.isJumpingDown = false;
-            this.scene.time.delayedCall(this.jumpTime, () => {
-                this.isJumpingUp = false;
-                this.isJumpingDown = true;
-                this.scene.time.delayedCall(this.jumpTime, () => {
-                    this.isJumpingDown = false;
-                    this.isJumping = false;
-                });
-
-            });
         }
     }
     public handleJumping() {
         if (this.isJumpingUp) {
             this.y -= this.jumpFramePixels; // Move up
+            if (this.y <= this.jumpStartY - (this.jumpFramePixels * JUMP_FRAME_COUNT) ) {
+                // Done jumping up
+                this.isJumpingUp = false;
+                this.isJumpingDown = true;
+            }
         } else if (this.isJumpingDown) {
             this.y += this.jumpFramePixels; // Move down
+            if (this.y === this.jumpStartY) {
+                // Done jumping
+                this.isJumping = false;
+                this.isJumpingDown = false;
+            }
         }
     }
     private isJumpInProgress() {
