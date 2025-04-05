@@ -1,7 +1,6 @@
 import { JUMP_FRAME_COUNT, Player } from './Player';
 import { getSelectedSprite } from '../state';
 import { HorseSprites } from './horseSprites';
-import Phaser from 'phaser';
 
 jest.mock('../state');
 
