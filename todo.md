@@ -1,5 +1,6 @@
-1. Background - field to run in
-2. Make it eat
-3. Make it jump
-4. Make it move
-5. Add a sound - nay
+1. Add obstaces to jump over
+    a. turtle
+    b. wooden-jump, 
+2. When you run into an obstacle, then GameOver
+3. Make GameOver Scene better
+4. Can select a different horse.
