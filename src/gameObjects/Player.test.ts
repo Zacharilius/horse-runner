@@ -25,7 +25,7 @@ const mockScene =  {
     },
 } as unknown as Phaser.Scene;
 
-jest.mock('Phaser', () => {
+jest.mock('phaser', () => {
     return {
         Physics: {
             Arcade: {
