@@ -15,7 +15,7 @@ export class MainMenu extends Scene{
     }
 
     create () {
-        this.selectedSpriteIndex = this.spriteSheetNames.indexOf(getSelectedSprite()) ?? 0;
+        this.selectedSpriteIndex = this.spriteSheetNames.indexOf(getSelectedSprite());
 
         this.add.text(375, 200, 'Horse Runner', {
             fontFamily: 'Arial Black', fontSize: 38, color: '#ffffff',

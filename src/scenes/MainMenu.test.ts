@@ -44,6 +44,17 @@ describe('MainMenu', () => {
         expect(mockScene.input.once).toHaveBeenCalledWith('pointerdown', expect.any(Function));
     });
 
+    it('should transition to the Game scene on pointerdown', () => {
+        mainMenu.create();
+
+        // Simulate the pointerdown event
+        const pointerdownCallback = (mockScene.input.once as jest.Mock).mock.calls[0][1];
+        pointerdownCallback();
+
+        expect(mockScene.input.once).toHaveBeenCalledWith('pointerdown', expect.any(Function));
+        expect(mockScene.scene.start).toHaveBeenCalledWith('Game');
+    });
+
     it('should update the sprite index and call updateSpriteSheet when left arrow is clicked', () => {
         mainMenu.create();
         const leftArrow = (mockScene.add.text as jest.Mock).mock.results[1].value;

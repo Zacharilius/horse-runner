@@ -39,6 +39,9 @@ describe('Game Scene', () => {
                 width: 1024,
                 height: 768,
             },
+            scene: {
+                start: jest.fn(),
+            },
             physics: {
                 world: {
                     enable: jest.fn(),
@@ -47,6 +50,11 @@ describe('Game Scene', () => {
                     collider: jest.fn(),
                 },
                 pause: jest.fn(),
+            },
+            time: {
+                delayedCall: jest.fn((_, callback) => {
+                    callback();
+                }),
             }
         } as unknown as jest.Mocked<Phaser.Scene>;
 
@@ -118,6 +126,46 @@ describe('Game Scene', () => {
         expect(mockBackgroundLayer.tilePositionX).toBe(gameScene['runVelocity']); // No change in velocity
     });
 
+    it('should handle up arrow in update()', () => {
+        const mockPlayer = {
+            handleJumping: jest.fn(),
+            moveUp: jest.fn(),
+        };
+        gameScene['player'] = mockPlayer as unknown as Player;
+
+        // Simulate idle
+        gameScene['cursors'] = {
+            left: { isDown: false },
+            right: { isDown: false },
+            up: { isDown: true },
+            down: { isDown: false },
+        } as unknown as Phaser.Types.Input.Keyboard.CursorKeys;
+
+        gameScene.update();
+
+        expect(mockPlayer.moveUp).toHaveBeenCalled();
+    });
+
+    it('should handle down arrow in update()', () => {
+        const mockPlayer = {
+            handleJumping: jest.fn(),
+            moveDown: jest.fn(),
+        };
+        gameScene['player'] = mockPlayer as unknown as Player;
+
+        // Simulate idle
+        gameScene['cursors'] = {
+            left: { isDown: false },
+            right: { isDown: false },
+            up: { isDown: false },
+            down: { isDown: true },
+        } as unknown as Phaser.Types.Input.Keyboard.CursorKeys;
+
+        gameScene.update();
+
+        expect(mockPlayer.moveDown).toHaveBeenCalled();
+    });
+
     it('should handle jumping in update()', () => {
         const mockPlayer = {
             startJumping: jest.fn(),
@@ -131,5 +179,23 @@ describe('Game Scene', () => {
 
         expect(mockPlayer.startJumping).toHaveBeenCalled();
         expect(mockPlayer.handleJumping).toHaveBeenCalled();
+    });
+
+    it('should handle when isPlayerDead when hitObstacle in update()', () => {
+        const mockPlayer = {
+            setTint: jest.fn(),
+            play: jest.fn(),
+            dead: jest.fn(),
+        } as unknown as Player;
+        gameScene['player'] = mockPlayer as unknown as Player;
+        const mockObstacle = {
+            setTint: jest.fn(),
+        } as unknown as Phaser.GameObjects.Sprite;
+        gameScene.hitObstacle(mockPlayer, mockObstacle);
+
+        expect(gameScene.scene.start).toHaveBeenCalled();
+
+        gameScene.update();
+        expect(mockPlayer.dead).toHaveBeenCalled();
     });
 });
