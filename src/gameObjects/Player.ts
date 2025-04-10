@@ -119,6 +119,10 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
             repeat: FRAME_REPEAT
         });
     }
+    public dead () {
+        this.stopGallopingSound();
+        this.stopWalkingSound();
+    }
     public walkLeft() {
         this.anims.play('leftWalk', true);
         this.playWalkingSound();

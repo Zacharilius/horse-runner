@@ -19,6 +19,10 @@ describe('Game Scene', () => {
                     setScale: jest.fn().mockReturnThis(),
                     setScrollFactor: jest.fn().mockReturnThis(),
                 })),
+                sprite: jest.fn().mockReturnValue({
+                    setScale: jest.fn(),
+                    setOrigin: jest.fn(),
+                }),
             },
             input: {
                 keyboard: {
@@ -35,6 +39,15 @@ describe('Game Scene', () => {
                 width: 1024,
                 height: 768,
             },
+            physics: {
+                world: {
+                    enable: jest.fn(),
+                },
+                add: {
+                    collider: jest.fn(),
+                },
+                pause: jest.fn(),
+            }
         } as unknown as jest.Mocked<Phaser.Scene>;
 
         gameScene = new Game();

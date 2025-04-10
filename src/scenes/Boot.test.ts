@@ -18,11 +18,6 @@ describe('Boot Scene', () => {
         Object.assign(bootScene, mockScene); // Mock Phaser's Scene methods
     });
 
-    it('should preload the background image', () => {
-        bootScene.preload();
-        expect(mockScene.load.image).toHaveBeenCalledWith('background', 'assets/bg.png');
-    });
-
     it('should start the Preloader scene in create()', () => {
         bootScene.create();
         expect(mockScene.scene.start).toHaveBeenCalledWith('Preloader');

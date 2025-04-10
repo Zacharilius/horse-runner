@@ -1,6 +1,8 @@
 import { Scene } from 'phaser';
 import { Player } from '../gameObjects/Player';
 
+const backgroundScale = 0.3;
+
 export class Game extends Scene {
     private backgroundGroup: Phaser.GameObjects.Group | undefined;
     private cursors: Phaser.Types.Input.Keyboard.CursorKeys | undefined;;
@@ -8,14 +10,19 @@ export class Game extends Scene {
     private spaceKey: Phaser.Input.Keyboard.Key | undefined;
     private player: Player | undefined;
 
+    private obstacle: Phaser.GameObjects.Sprite | undefined;
+
     private walkVelocity = 10;
     private runVelocity = 20;
+
+    private isPlayerDead = false;
 
     constructor () {
         super('Game');
     }
 
     init () {
+        this.isPlayerDead = false;
         if (this?.input?.keyboard) {
             this.cursors = this.input.keyboard.createCursorKeys();
             this.rKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.R);
@@ -29,15 +36,45 @@ export class Game extends Scene {
         const { width, height } = this.scale
         
         this.backgroundGroup = this.backgroundGroup = this.add.group();
-        const backgroundScale = 0.3;
         this.backgroundGroup.add(this.add.tileSprite(0, 200, 5000, 704,'hillsBackground').setOrigin(0, 0).setScale(backgroundScale).setScrollFactor(0, 0));
         this.backgroundGroup.add(this.add.tileSprite(0, 50, 5000, 1242, 'treesBackground').setOrigin(0, 0).setScale(backgroundScale).setScrollFactor(0, 0));
         this.backgroundGroup.add(this.add.tileSprite(0, 305, 5000, 992, 'trailBackground').setOrigin(0, 0).setScale(backgroundScale).setScrollFactor(0, 0));
 
         this.player = new Player(this, width / 2, (height / 2) + 75);
+        this.physics.world.enable(this.player);
+        if (this.player.body) {
+            this.player.body?.setSize(32, 20);
+            this.player.body?.setOffset(16, 26);
+        }
+
+        this.obstacle = this.add.sprite(width - 100, height - 100, 'obstacle');
+        this.obstacle.setScale(0.5);
+        this.physics.world.enable(this.obstacle);
+
+        this.physics.add.collider(this.player, this.obstacle, this.hitObstacle  as Phaser.Types.Physics.Arcade.ArcadePhysicsCallback, undefined, this);
+    }
+
+    hitObstacle (
+        player: Player,
+        obstacle: Phaser.GameObjects.Sprite
+    ) {
+        this.isPlayerDead = true;
+        this.physics.pause();
+        player.setTint(0xff0000);
+        obstacle.setTint(0xff0000);
+
+        player.play('turn');
+        this.time.delayedCall(2000, () => {
+            this.scene.start('GameOver');
+        });
     }
 
     update () {
+        if (this.isPlayerDead) {
+            this.player?.dead();
+            return;
+        }
+
         let isRunning = false;
         if (this?.rKey?.isDown) {
             isRunning = true;
@@ -83,5 +120,9 @@ export class Game extends Scene {
             const tileSprite = layer as Phaser.GameObjects.TileSprite;
             tileSprite.tilePositionX += velocityX;
         });
+
+        if (this.obstacle) {
+            this.obstacle.x -= (velocityX * backgroundScale);
+        }
     }
 }

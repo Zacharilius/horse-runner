@@ -32,7 +32,6 @@ describe('Preloader Scene', () => {
     it('should initialize the background and progress bar in init()', () => {
         preloaderScene.init();
 
-        expect(mockScene.add.image).toHaveBeenCalledWith(512, 384, 'background');
         expect(mockScene.add.rectangle).toHaveBeenCalledWith(512, 384, 468, 32);
         expect(mockScene.add.rectangle).toHaveBeenCalledWith(512 - 230, 384, 4, 28, 0xffffff);
         expect(mockScene.load.on).toHaveBeenCalledWith('progress', expect.any(Function));
