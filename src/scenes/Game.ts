@@ -10,7 +10,7 @@ export class Game extends Scene {
     private spaceKey: Phaser.Input.Keyboard.Key | undefined;
     private player: Player | undefined;
 
-    private obstacle: Phaser.GameObjects.Sprite | undefined;
+    private obstacles: Phaser.Physics.Arcade.Group | undefined;
 
     private walkVelocity = 10;
     private runVelocity = 20;
@@ -42,16 +42,15 @@ export class Game extends Scene {
 
         this.player = new Player(this, width / 2, (height / 2) + 75);
         this.physics.world.enable(this.player);
-        if (this.player.body) {
-            this.player.body?.setSize(32, 20);
-            this.player.body?.setOffset(16, 26);
-        }
+        this.player.body?.setSize(32, 20);
+        this.player.body?.setOffset(16, 26);
 
-        this.obstacle = this.add.sprite(width - 100, height - 100, 'obstacle');
-        this.obstacle.setScale(0.5);
-        this.physics.world.enable(this.obstacle);
+        this.obstacles = this.physics.add.group();
+        this.physics.world.enable(this.obstacles);
 
-        this.physics.add.collider(this.player, this.obstacle, this.hitObstacle  as Phaser.Types.Physics.Arcade.ArcadePhysicsCallback, undefined, this);
+        this.physics.add.collider(this.player, this.obstacles, this.hitObstacle  as Phaser.Types.Physics.Arcade.ArcadePhysicsCallback, undefined, this);
+
+        this.addObstacle()
     }
 
     hitObstacle (
@@ -67,6 +66,14 @@ export class Game extends Scene {
         this.time.delayedCall(2000, () => {
             this.scene.start('GameOver');
         });
+    }
+
+    addObstacle () {
+        // TODO: Make random and offscreen
+        const { width, height } = this.scale
+        const obstacle = this.add.sprite(width - 100, height - 100, 'obstacle');
+        obstacle.setScale(0.5);
+        this.obstacles?.add(obstacle);
     }
 
     update () {
@@ -121,8 +128,10 @@ export class Game extends Scene {
             tileSprite.tilePositionX += velocityX;
         });
 
-        if (this.obstacle) {
-            this.obstacle.x -= (velocityX * backgroundScale);
-        }
+        // Obstacle Scrolling
+        this?.obstacles?.getChildren().forEach((obstacle) => {
+            const obstacleSprite = obstacle as Phaser.GameObjects.Sprite;
+            obstacleSprite.x -= (velocityX * backgroundScale);
+        });
     }
 }

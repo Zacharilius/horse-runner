@@ -48,6 +48,10 @@ describe('Game Scene', () => {
                 },
                 add: {
                     collider: jest.fn(),
+                    group: jest.fn(() => ({
+                        add: jest.fn(),
+                        getChildren: jest.fn().mockReturnValue([]),
+                    })),
                 },
                 pause: jest.fn(),
             },
